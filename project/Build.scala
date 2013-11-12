@@ -12,7 +12,7 @@ object ApplicationBuild extends Build {
     javaCore,
     javaJdbc,
     javaEbean,
-    "com.netflix.astyanax" % "astyanax" % "0.8.9"
+    "com.netflix.astyanax" % "astyanax" % "1.56.26"
     
   )
 
