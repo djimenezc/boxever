@@ -11,11 +11,13 @@ object ApplicationBuild extends Build {
     // Add your project dependencies here,
     javaCore,
     javaJdbc,
-    javaEbean
+    javaEbean,
+    "com.netflix.astyanax" % "astyanax" % "0.8.9"
+    
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here      
   )
-
+  
 }
