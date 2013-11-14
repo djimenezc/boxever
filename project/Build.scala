@@ -13,7 +13,6 @@ object ApplicationBuild extends Build {
     javaJdbc,
     javaEbean,
     "com.netflix.astyanax" % "astyanax" % "1.56.26"
-    
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
