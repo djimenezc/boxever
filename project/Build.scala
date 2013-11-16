@@ -12,7 +12,10 @@ object ApplicationBuild extends Build {
     javaCore,
     javaJdbc,
     javaEbean,
-    "com.netflix.astyanax" % "astyanax" % "1.56.26"
+    "com.netflix.astyanax" % "astyanax" % "1.56.26",
+    "org.springframework"  %  "spring-test" % "3.1.2.RELEASE" % "test", 
+    "org.springframework"  %  "spring-expression" % "3.1.2.RELEASE" % "test", 
+    "org.springframework"  %  "spring-asm" % "3.1.2.RELEASE" % "test"
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
