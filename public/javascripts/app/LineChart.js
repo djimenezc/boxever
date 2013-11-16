@@ -47,6 +47,7 @@ LineChart = function() {
 	this.updateChart = function(data) {
 		
 		if(data) {
+			currencyRates = data;
 			x.domain(d3.extent(data, function(d) {
 				return d.date;
 			}));
@@ -65,17 +66,22 @@ LineChart = function() {
 		}
 	};
 	
+    this.fetchData = function(callback) {
+		
+		d3.tsv("assets/mockData/data.tsv", function(error, data) {
+			data.forEach(function(d) {
+				d.date = parseDate(d.date);
+				d.close = +d.close;
+			});
+			
+			callback(data);
+		});
+    };
+	
 	this.resize();
 
 	d3.select(window).on('resize', this.resize);
 
-	d3.tsv("assets/mockData/data.tsv", function(error, data) {
-		currencyRates = data;
-		data.forEach(function(d) {
-			d.date = parseDate(d.date);
-			d.close = +d.close;
-		});
+	this.fetchData(this.updateChart);
 		
-		updateChart(currencyRates);
-	});
 }();
