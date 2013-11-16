@@ -1,11 +1,10 @@
 package app.services;
 
-import static org.junit.Assert.assertEquals;
-import static play.test.Helpers.HTMLUNIT;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.inMemoryDatabase;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
 import static play.test.Helpers.running;
-import static play.test.Helpers.testServer;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,14 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import play.libs.F.Callback;
 import play.mvc.Result;
-import play.test.TestBrowser;
 import actors.CurrencyActor;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/components.xml" })
-public class WebserviceManagerTest {
+public class CurrencyActorTest {
 
 	@Autowired
 	private CurrencyActor currencyActor;
@@ -28,13 +25,19 @@ public class WebserviceManagerTest {
 	@Test
 	public void connectCurrKeyspaceTest() {
 
-		running(testServer(3333, fakeApplication(inMemoryDatabase())), HTMLUNIT, new Callback<TestBrowser>() {
+		running(fakeApplication(), new Runnable() {
 			@Override
-			public void invoke(final TestBrowser browser) {
+			public void run() {
+
+				final String username = "Aerus";
+				final Result res = route(fakeRequest("GET", "/").withSession("username", username).withSession("key",
+						"value"));
+				assert contentAsString(res).contains(username);
+
 				final Result apiResult = currencyActor
 						.feedTitle("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml");
 
-				assertEquals("", apiResult);
+				// assertEquals("", apiResult);
 			}
 		});
 

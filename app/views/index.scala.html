@@ -24,17 +24,14 @@
         <div class="span3">
           <div class="well sidebar-nav">
             <ul class="nav nav-list">
-              <li class="nav-header">Operations</li>
+              <li class="nav-header">Select currency</li>
               <li>
-              		<select>
-					  <option value="volvo">Volvo</option>
-					  <option value="saab">Saab</option>
-					  <option value="mercedes">Mercedes</option>
-					  <option value="audi">Audi</option>
-				</select>
+              		<select ng-model="selectedCurrency"  ng-options="c.name for c in currencies">
+<!-- 			          	<option value="">-- choose currency --</option> -->
+			        </select>
               </li>
-              <li><a href="#">Refresh {{currentRate}}</a></li>
-              <li><a href="#">Refresh all</a></li>
+              <li><a href ng-click="refreshRate">Refresh {{selectedCurrency.name}}</a></li>
+              <li><a href ng-click="refreshAll">Refresh all</a></li>
             </ul>
           </div><!--/.well -->
         </div><!--/span-->
