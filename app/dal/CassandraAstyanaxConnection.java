@@ -3,6 +3,7 @@ package dal;
 import java.util.List;
 
 import models.CurrencyRate;
+import models.CurrencyType;
 import models.DailyRate;
 
 import org.slf4j.Logger;
@@ -123,6 +124,21 @@ public class CassandraAstyanaxConnection {
 			LOGGER.error("failed to read from C*", e);
 			throw new RuntimeException("failed to read from C*", e);
 		}
+	}
+
+	public Rows<String, String> readByCurrency(final ColumnFamily<String, String> columnFamily,
+			final Keyspace keyspace, final CurrencyType usd) {
+
+		LOGGER.debug("read by currency()");
+		try {
+			final OperationResult<CqlResult<String, String>> result = keyspace.prepareQuery(columnFamily)
+					.withCql(String.format("SELECT * FROM %s;", columnFamily.getName())).execute();
+			return result.getResult().getRows();
+		} catch (final ConnectionException e) {
+			LOGGER.error("failed to read from C*", e);
+			throw new RuntimeException("failed to read from C*", e);
+		}
+
 	}
 
 	public OperationResult<Void> writeDailyCurrencies(final ColumnFamily<String, String> columnFamily,

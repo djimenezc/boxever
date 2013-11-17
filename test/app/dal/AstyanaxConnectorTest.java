@@ -192,4 +192,21 @@ public class AstyanaxConnectorTest {
 
 		dataSourceConnector.read(columnFamily, keyspace, "bfc9e920-4f9c-11");
 	}
+
+	@Test
+	public void testReadDailyRateByCurrency() throws ConnectionException {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		final String keyspaceName = "currencies";
+		parameterObject.setKeyspace(keyspaceName);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		final String columnFamilyName = "dailyCurrencies2";
+
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
+				keyspace);
+		assertNotNull(columnFamily);
+
+		dataSourceConnector.readByCurrency(columnFamily, keyspace, CurrencyType.USD);
+	}
 }
