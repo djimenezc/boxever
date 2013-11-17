@@ -1,9 +1,7 @@
-/**
- * 
- */
+'use strict';
 
-currencyApp.controller('AboutCtrl', function ($scope, $http) {
+angular.module('currencyApp.controllers', []).controller('AboutCtrl', function ($scope, $http) {
 	
-	
+	console.log('AboutCtl init');
 });
 

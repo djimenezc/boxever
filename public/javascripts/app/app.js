@@ -1,15 +1,17 @@
-/**
- * 
- */
-var currencyApp = angular.module('currencyApp', []);
+'use strict';
 
-currencyApp.config([ '$routeProvider', function($routeProvider) {
+var myApp = angular.module('currencyApp', ['ngRoute','currencyControllers','currencyDirectives']);
+
+myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/about', {
-		templateUrl : 'partials/about.html',
-		controller : AboutCtrl
+		templateUrl : '/assets/partials/about.html',
+		controller : 'AboutCtrl'
 	}).when('/contact', {
-		templateUrl : 'partials/contact.html',
-		controller : ContactCtrl
+		templateUrl : '/assets/partials/contact.html',
+		controller : 'ContactCtrl'
+	}).when('/', {
+		templateUrl : '/assets/partials/main.html',
+		controller : 'CurrencyCtrl'
 	}).otherwise({
 		redirectTo : '/'
 	});

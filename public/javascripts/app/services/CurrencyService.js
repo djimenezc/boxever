@@ -1,16 +1,11 @@
-/**
- * 
- */
-var myModule = angular.module('currencyApp.services', []);
+'use strict';
 
-myModule.factory('currencyService', function() {
-	
+angular.module('currencyApp.services', [])
+	.factory('currencyService', function() {
 	console.log('Currency service starting');
 	
 	return {
-    		
     		getRateData : function(rateId) {
-    			
     			console.log('getRateData');
     			
     			$http({method: 'GET', url: '/currency/get/'+rateId}).

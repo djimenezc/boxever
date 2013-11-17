@@ -1,9 +1,8 @@
-/**
- * 
- */
-var currencyApp = angular.module('currencyApp', ['currencyApp.services']);
+'use strict';
 
-currencyApp.controller('CurrencyCtrl', function ($scope, $http) {
+var currencyControllers = angular.module('currencyControllers', []);
+
+currencyControllers.controller('CurrencyCtrl', function ($scope, $http) {
 	
 	$http({method: 'GET', url: '/currency/list'}).
 	  success(function(data, status, headers, config) {
