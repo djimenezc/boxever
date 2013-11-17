@@ -1,8 +1,6 @@
 /**
  * 
  */
-var myModule = angular.module('currencyApp', []);
-
 var myModule = angular.module('currencyApp.services', []);
 
 myModule.factory('currencyService', function() {

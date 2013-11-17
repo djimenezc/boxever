@@ -61,7 +61,7 @@ LineChart = function() {
 			svg.append("g").attr("class", "y axis").call(yAxis).append("text")
 					.attr("transform", "rotate(-90)").attr("y", 6).attr("dy",
 							".71em").style("text-anchor", "end").text(
-							"Price ($)");
+							"Price (€)");
 
 			svg.append("path").datum(data).attr("class", "line")
 					.attr("d", line);
@@ -70,28 +70,28 @@ LineChart = function() {
 
 	this.fetchData = function(callback) {
 
-		 d3.tsv("assets/mockData/data.tsv", function(error, data) {
-		 data.forEach(function(d) {
-		 d.date = parseDate(d.date);
-		 d.close = +d.close;
-		 });
-					
-		 callback(data);
-		 });
+		d3.tsv("assets/mockData/data.tsv", function(error, data) {
+			data.forEach(function(d) {
+				d.date = parseDate(d.date);
+				d.close = +d.close;
+			});
 
-//		$.ajax({
-//			url : "/currency/get/" + Global.selectedCurrency,
-////			beforeSend : function(xhr) {
-////				xhr.overrideMimeType("text/plain; charset=x-user-defined");
-////			}
-//		}).done(function(data) {
-//			data.forEach(function(d) {
-//				d.date = parseDate(d.date);
-//				d.close = +d.close;
-//			});
+			callback(data);
+		});
 
-//			callback(data);
-//		});
+		// $.ajax({
+		// url : "/currency/get/" + Global.selectedCurrency,
+		// // beforeSend : function(xhr) {
+		// // xhr.overrideMimeType("text/plain; charset=x-user-defined");
+		// // }
+		// }).done(function(data) {
+		// data.forEach(function(d) {
+		// d.date = parseDate(d.date);
+		// d.close = +d.close;
+		// });
+
+		// callback(data);
+		// });
 
 	};
 

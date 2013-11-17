@@ -1,13 +1,16 @@
 /**
  * 
  */
-//var currencyApp = angular.module('currencyApp', []);
-//.
-//  config(['$routeProvider', function($routeProvider) 
-          {
-//  $routeProvider.
-//      when('/phones', {templateUrl: 'partials/phone-list.html',   controller: PhoneListCtrl}).
-//      when('/phones/:phoneId', {templateUrl: 'partials/phone-detail.html', controller: PhoneDetailCtrl}).
-//      otherwise({redirectTo: '/phones'});
-//}])
-//;
+var currencyApp = angular.module('currencyApp', []);
+
+currencyApp.config([ '$routeProvider', function($routeProvider) {
+	$routeProvider.when('/about', {
+		templateUrl : 'partials/about.html',
+		controller : AboutCtrl
+	}).when('/contact', {
+		templateUrl : 'partials/contact.html',
+		controller : ContactCtrl
+	}).otherwise({
+		redirectTo : '/'
+	});
+} ]);

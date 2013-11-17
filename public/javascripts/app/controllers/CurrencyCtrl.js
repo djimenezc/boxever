@@ -1,7 +1,7 @@
 /**
  * 
  */
-var currencyApp = angular.module('currencyApp', []);
+var currencyApp = angular.module('currencyApp', ['currencyApp.services']);
 
 currencyApp.controller('CurrencyCtrl', function ($scope, $http) {
 	
@@ -38,5 +38,3 @@ currencyApp.controller('CurrencyCtrl', function ($scope, $http) {
 	};
 	
 });
-
-//myController.$inject = ['$location', '$log'];
