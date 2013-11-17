@@ -1,26 +1,34 @@
 package app.services;
 
-import static play.test.Helpers.contentAsString;
+import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.fakeApplication;
+import static play.test.Helpers.fakeGlobal;
 import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.inMemoryDatabase;
 import static play.test.Helpers.route;
 import static play.test.Helpers.running;
+import static play.test.Helpers.session;
+import static play.test.Helpers.start;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import play.api.test.FakeApplication;
+import play.api.test.WithApplication;
+import play.mvc.Http.Session;
 import play.mvc.Result;
 import actors.CurrencyActor;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/components.xml" })
-public class CurrencyActorTest {
+// @RunWith(SpringJUnit4ClassRunner.class)
+// @ContextConfiguration(locations = { "classpath:/components.xml" })
+public class CurrencyActorTest extends WithApplication {
 
-	@Autowired
-	private CurrencyActor currencyActor;
+	// @Autowired
+	// private CurrencyActor currencyActor;
+
+	public CurrencyActorTest(final FakeApplication app) {
+		super(app);
+	}
 
 	@Test
 	public void connectCurrKeyspaceTest() {
@@ -28,24 +36,28 @@ public class CurrencyActorTest {
 		running(fakeApplication(), new Runnable() {
 			@Override
 			public void run() {
-
+				// TODO remove
 				final String username = "Aerus";
 				final Result res = route(fakeRequest("GET", "/").withSession("username", username).withSession("key",
 						"value"));
-				assert contentAsString(res).contains(username);
+				// assert contentAsString(res).contains(username);
 
-				final Result apiResult = currencyActor
-						.feedTitle("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml");
+				final Session sessionFake = session(res);
 
-				// assertEquals("", apiResult);
+				// CurrencyActor.
+				final Result apiResult = CurrencyActor
+						.readXmlDataFromApi("http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml");
+
+				assertEquals("", apiResult.toString());
 			}
 		});
 
 	}
 
-	// @BeforeClass
-	// public static void globalSetup() {
-	// webserviceManager = new WebserviceManager();
-	// }
+	@Before
+	public void setUp() {
+		start(fakeApplication(inMemoryDatabase(), fakeGlobal()));
+		// Ebean.save((List) Yaml.load("test-data.yml"));
+	}
 
 }

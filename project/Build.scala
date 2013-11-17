@@ -15,7 +15,10 @@ object ApplicationBuild extends Build {
     "com.netflix.astyanax" % "astyanax" % "1.56.26",
     "org.springframework"  %  "spring-test" % "3.1.2.RELEASE" % "test", 
     "org.springframework"  %  "spring-expression" % "3.1.2.RELEASE" % "test", 
-    "org.springframework"  %  "spring-asm" % "3.1.2.RELEASE" % "test"
+    "org.springframework"  %  "spring-asm" % "3.1.2.RELEASE" % "test",
+    "org.jdom"  %  "jdom" % "1.1.3",
+    "jaxen"  %  "jaxen" % "1.1.4"
+    
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
