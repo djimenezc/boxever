@@ -17,7 +17,8 @@ object ApplicationBuild extends Build {
     "org.springframework"  %  "spring-expression" % "3.1.2.RELEASE" % "test", 
     "org.springframework"  %  "spring-asm" % "3.1.2.RELEASE" % "test",
     "org.jdom"  %  "jdom" % "1.1.3",
-    "jaxen"  %  "jaxen" % "1.1.4"
+    "jaxen"  %  "jaxen" % "1.1.4",
+    "commons-io"  %  "commons-io" % "2.0.1"
     
   )
 

@@ -33,12 +33,12 @@ public class AstCQLClient {
 	private ColumnFamily<Integer, String> EMP_CF;
 	private static final String EMP_CF_NAME = "employees1";
 	private static final String INSERT_STATEMENT = String.format(
-			"INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?);", EMP_CF_NAME, ModelConstants.COL_NAME_EMPID,
-			ModelConstants.COL_NAME_DEPTID, ModelConstants.COL_NAME_FIRST_NAME, ModelConstants.COL_NAME_LAST_NAME);
+			"INSERT INTO %s (%s, %s, %s, %s) VALUES (?, ?, ?, ?);", EMP_CF_NAME, ModelConstantsTest.COL_NAME_EMPID,
+			ModelConstantsTest.COL_NAME_DEPTID, ModelConstantsTest.COL_NAME_FIRST_NAME, ModelConstantsTest.COL_NAME_LAST_NAME);
 	private static final String CREATE_STATEMENT = String.format(
 			"CREATE TABLE %s (%s int, %s int, %s varchar, %s varchar, PRIMARY KEY (%s, %s))", EMP_CF_NAME,
-			ModelConstants.COL_NAME_EMPID, ModelConstants.COL_NAME_DEPTID, ModelConstants.COL_NAME_FIRST_NAME,
-			ModelConstants.COL_NAME_LAST_NAME, ModelConstants.COL_NAME_EMPID, ModelConstants.COL_NAME_DEPTID);
+			ModelConstantsTest.COL_NAME_EMPID, ModelConstantsTest.COL_NAME_DEPTID, ModelConstantsTest.COL_NAME_FIRST_NAME,
+			ModelConstantsTest.COL_NAME_LAST_NAME, ModelConstantsTest.COL_NAME_EMPID, ModelConstantsTest.COL_NAME_DEPTID);
 
 	public static void main(final String[] args) {
 		logger.debug("main");
@@ -112,17 +112,17 @@ public class AstCQLClient {
 			final OperationResult<CqlResult<Integer, String>> result = keyspace
 					.prepareQuery(EMP_CF)
 					.withCql(
-							String.format("SELECT * FROM %s WHERE %s=%d;", EMP_CF_NAME, ModelConstants.COL_NAME_EMPID,
+							String.format("SELECT * FROM %s WHERE %s=%d;", EMP_CF_NAME, ModelConstantsTest.COL_NAME_EMPID,
 									empId)).execute();
 			for (final Row<Integer, String> row : result.getResult().getRows()) {
 				logger.debug("row: " + row.getKey() + "," + row); // why is rowKey null?
 
 				final ColumnList<String> cols = row.getColumns();
 				logger.debug("emp");
-				logger.debug("- emp id: " + cols.getIntegerValue(ModelConstants.COL_NAME_EMPID, null));
-				logger.debug("- dept: " + cols.getIntegerValue(ModelConstants.COL_NAME_DEPTID, null));
-				logger.debug("- firstName: " + cols.getStringValue(ModelConstants.COL_NAME_FIRST_NAME, null));
-				logger.debug("- lastName: " + cols.getStringValue(ModelConstants.COL_NAME_LAST_NAME, null));
+				logger.debug("- emp id: " + cols.getIntegerValue(ModelConstantsTest.COL_NAME_EMPID, null));
+				logger.debug("- dept: " + cols.getIntegerValue(ModelConstantsTest.COL_NAME_DEPTID, null));
+				logger.debug("- firstName: " + cols.getStringValue(ModelConstantsTest.COL_NAME_FIRST_NAME, null));
+				logger.debug("- lastName: " + cols.getStringValue(ModelConstantsTest.COL_NAME_LAST_NAME, null));
 			}
 		} catch (final ConnectionException e) {
 			logger.error("failed to read from C*", e);

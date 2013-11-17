@@ -35,7 +35,7 @@ public class XmlProcessor {
 			final DateFormat formatter = new SimpleDateFormat("yy-MM-dd");
 			final Date date = formatter.parse(element.getAttributeValue("time"));
 			final List<CurrencyRate> currencyRates = new ArrayList<CurrencyRate>();
-			;
+
 			for (final Object child : element.getChildren()) {
 				final String currency = ((Element) child).getAttributeValue("currency");
 				final String rate = ((Element) child).getAttributeValue("rate");

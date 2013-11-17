@@ -58,10 +58,10 @@ public class AstClient {
 	public void insert(final int empId, final int deptId, final String firstName, final String lastName) {
 		final MutationBatch m = keyspace.prepareMutationBatch();
 
-		m.withRow(EMP_CF, empId).putColumn(ModelConstants.COL_NAME_EMPID, empId, null)
-				.putColumn(ModelConstants.COL_NAME_DEPTID, deptId, null)
-				.putColumn(ModelConstants.COL_NAME_FIRST_NAME, firstName, null)
-				.putColumn(ModelConstants.COL_NAME_LAST_NAME, lastName, null);
+		m.withRow(EMP_CF, empId).putColumn(ModelConstantsTest.COL_NAME_EMPID, empId, null)
+				.putColumn(ModelConstantsTest.COL_NAME_DEPTID, deptId, null)
+				.putColumn(ModelConstantsTest.COL_NAME_FIRST_NAME, firstName, null)
+				.putColumn(ModelConstantsTest.COL_NAME_LAST_NAME, lastName, null);
 
 		try {
 			@SuppressWarnings("unused")
@@ -98,10 +98,10 @@ public class AstClient {
 
 			// b) get columns by name
 			logger.debug("emp");
-			logger.debug("- emp id: " + cols.getIntegerValue(ModelConstants.COL_NAME_EMPID, null));
-			logger.debug("- dept: " + cols.getIntegerValue(ModelConstants.COL_NAME_DEPTID, null));
-			logger.debug("- firstName: " + cols.getStringValue(ModelConstants.COL_NAME_FIRST_NAME, null));
-			logger.debug("- lastName: " + cols.getStringValue(ModelConstants.COL_NAME_LAST_NAME, null));
+			logger.debug("- emp id: " + cols.getIntegerValue(ModelConstantsTest.COL_NAME_EMPID, null));
+			logger.debug("- dept: " + cols.getIntegerValue(ModelConstantsTest.COL_NAME_DEPTID, null));
+			logger.debug("- firstName: " + cols.getStringValue(ModelConstantsTest.COL_NAME_FIRST_NAME, null));
+			logger.debug("- lastName: " + cols.getStringValue(ModelConstantsTest.COL_NAME_LAST_NAME, null));
 
 		} catch (final ConnectionException e) {
 			logger.error("failed to read from C*", e);

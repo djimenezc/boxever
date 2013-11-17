@@ -1,6 +1,6 @@
 package app.dal.netflix;
 
-public class ModelConstants {
+public class ModelConstantsTest {
 	public static final String COL_NAME_EMPID = "empid";
 	public static final String COL_NAME_DEPTID = "deptid";
 	public static final String COL_NAME_FIRST_NAME = "first_name";

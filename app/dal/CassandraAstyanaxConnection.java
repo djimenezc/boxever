@@ -34,6 +34,8 @@ public class CassandraAstyanaxConnection {
 		static final CassandraAstyanaxConnection connection = new CassandraAstyanaxConnection();
 	}
 
+	private static final String DAILY_CURRENCIES_FC = "dailyCurrencies";
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CassandraAstyanaxConnection.class);
 
 	public static AstyanaxContext<Keyspace> connectClusterContext(final ConnectKeyspaceConfig parameterObject) {
@@ -127,12 +129,15 @@ public class CassandraAstyanaxConnection {
 	}
 
 	public Rows<String, String> readByCurrency(final ColumnFamily<String, String> columnFamily,
-			final Keyspace keyspace, final CurrencyType usd) {
+			final Keyspace keyspace, final CurrencyType currencyType) {
 
 		LOGGER.debug("read by currency()");
 		try {
-			final OperationResult<CqlResult<String, String>> result = keyspace.prepareQuery(columnFamily)
-					.withCql(String.format("SELECT * FROM %s;", columnFamily.getName())).execute();
+			final OperationResult<CqlResult<String, String>> result = keyspace
+					.prepareQuery(columnFamily)
+					.withCql(
+							String.format("SELECT * FROM %s WHERE %s=%d", columnFamily.getName(),
+									ModelConstants.COL_NAME_CURRENCY, currencyType.getName())).execute();
 			return result.getResult().getRows();
 		} catch (final ConnectionException e) {
 			LOGGER.error("failed to read from C*", e);
@@ -166,6 +171,21 @@ public class CassandraAstyanaxConnection {
 			LOGGER.error("Error inserting daily rates data", e);
 		}
 		return result;
+	}
+
+	public OperationResult<Void> writeDailyCurrencies(final List<DailyRate> dailyRateList) throws ConnectionException {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		final String keyspaceName = "currencies";
+		parameterObject.setKeyspace(keyspaceName);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES_FC, keyspace);
+
+		keyspace.truncateColumnFamily(columnFamily);
+
+		return writeDailyCurrencies(columnFamily, keyspace, dailyRateList);
 	}
 
 }
