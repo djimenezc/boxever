@@ -136,7 +136,7 @@ public class CassandraAstyanaxConnection {
 			final OperationResult<CqlResult<String, String>> result = keyspace
 					.prepareQuery(columnFamily)
 					.withCql(
-							String.format("SELECT * FROM %s WHERE %s=%d", columnFamily.getName(),
+							String.format("SELECT * FROM %s WHERE %s=%s", columnFamily.getName(),
 									ModelConstants.COL_NAME_CURRENCY, currencyType.getName())).execute();
 			return result.getResult().getRows();
 		} catch (final ConnectionException e) {
