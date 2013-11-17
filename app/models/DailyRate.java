@@ -1,6 +1,7 @@
 package models;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Id;
 
@@ -19,41 +20,36 @@ public class DailyRate extends Model {
 	@Id
 	private Long id;
 	private final Date date;
-	private final CurrencyRate currencyRate;
+	private final List<CurrencyRate> currencyRates;
 
 	/**
 	 * @param date
 	 * @param currencyRate
 	 */
-	public DailyRate(final Date date, final CurrencyRate currencyRate) {
+	public DailyRate(final Date date, final List<CurrencyRate> currencyRates) {
 		super();
 		this.date = date;
-		this.currencyRate = currencyRate;
+		this.currencyRates = currencyRates;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
+		if (!super.equals(obj)) {
 			return false;
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final DailyRate other = (DailyRate) obj;
-		if (currencyRate == null) {
-			if (other.currencyRate != null) {
+		if (currencyRates == null) {
+			if (other.currencyRates != null) {
 				return false;
 			}
 		}
-		else if (!currencyRate.equals(other.currencyRate)) {
+		else if (!currencyRates.equals(other.currencyRates)) {
 			return false;
 		}
 		if (date == null) {
@@ -64,24 +60,36 @@ public class DailyRate extends Model {
 		else if (!date.equals(other.date)) {
 			return false;
 		}
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		}
+		else if (!id.equals(other.id)) {
+			return false;
+		}
 		return true;
+	}
+
+	public List<CurrencyRate> getCurrencyRates() {
+		return currencyRates;
+	}
+
+	public Date getDate() {
+		return date;
 	}
 
 	public Long getId() {
 		return id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + (currencyRate == null ? 0 : currencyRate.hashCode());
+		int result = super.hashCode();
+		result = prime * result + (currencyRates == null ? 0 : currencyRates.hashCode());
 		result = prime * result + (date == null ? 0 : date.hashCode());
+		result = prime * result + (id == null ? 0 : id.hashCode());
 		return result;
 	}
 
@@ -89,14 +97,9 @@ public class DailyRate extends Model {
 		this.id = id;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
-		return "DailyRate [date=" + date + ", currencyRate=" + currencyRate + "]";
+		return "DailyRate [id=" + id + ", date=" + date + ", currencyRates=" + currencyRates + "]";
 	}
 
 }

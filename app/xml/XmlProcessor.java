@@ -34,14 +34,17 @@ public class XmlProcessor {
 			final Element element = (Element) o;
 			final DateFormat formatter = new SimpleDateFormat("yy-MM-dd");
 			final Date date = formatter.parse(element.getAttributeValue("time"));
+			final List<CurrencyRate> currencyRates = new ArrayList<CurrencyRate>();
+			;
 			for (final Object child : element.getChildren()) {
 				final String currency = ((Element) child).getAttributeValue("currency");
 				final String rate = ((Element) child).getAttributeValue("rate");
 
 				final CurrencyRate currencyRate = new CurrencyRate(CurrencyType.valueOf(currency), Double.valueOf(rate));
-				final DailyRate dailyRate = new DailyRate(date, currencyRate);
-				result.add(dailyRate);
+				currencyRates.add(currencyRate);
 			}
+			final DailyRate dailyRate = new DailyRate(date, currencyRates);
+			result.add(dailyRate);
 		}
 		return result;
 	}
