@@ -5,7 +5,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import models.CurrencyRate;
 import models.CurrencyType;
@@ -56,21 +58,24 @@ public class AstyanaxConnectorTest {
 		assertNotNull(operationResult.getResult().getSchemaId());
 	}
 
-	private List<DailyRate> generateDailyRatesList() {
+	private Map<String, DailyRate> generateDailyRatesMap() {
 
-		final List<DailyRate> dailyRatesList = new ArrayList<DailyRate>();
+		final Map<String, DailyRate> dailyRatesList = new HashMap<String, DailyRate>();
 		List<CurrencyRate> currencyRates = new ArrayList<CurrencyRate>();
 		currencyRates.add(new CurrencyRate(CurrencyType.USD, 1.3333D));
 		currencyRates.add(new CurrencyRate(CurrencyType.AUD, 2.4333D));
 		currencyRates.add(new CurrencyRate(CurrencyType.BGN, 3.3333D));
+
 		DailyRate dailyRate = new DailyRate(new Date(), currencyRates);
-		dailyRatesList.add(dailyRate);
+		dailyRatesList.put("2013-09-11", dailyRate);
+
 		currencyRates = new ArrayList<CurrencyRate>();
 		currencyRates.add(new CurrencyRate(CurrencyType.USD, 1.3333D));
 		currencyRates.add(new CurrencyRate(CurrencyType.AUD, 2.4333D));
 		currencyRates.add(new CurrencyRate(CurrencyType.BGN, 3.3333D));
+
 		dailyRate = new DailyRate(new Date(), currencyRates);
-		dailyRatesList.add(dailyRate);
+		dailyRatesList.put("2013-09-12", dailyRate);
 
 		return dailyRatesList;
 	}
@@ -159,14 +164,14 @@ public class AstyanaxConnectorTest {
 
 		assertEquals(keyspaceName, keyspace.getKeyspaceName());
 
-		final List<DailyRate> dailyRatesList = generateDailyRatesList();
+		final Map<String, DailyRate> dailyRatesMap = generateDailyRatesMap();
 		final String columnFamilyName = "dailyCurrencies2";
 
 		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
 				keyspace);
 
 		final OperationResult<Void> result = dataSourceConnector.writeDailyCurrencies(columnFamily, keyspace,
-				dailyRatesList);
+				dailyRatesMap);
 
 		dataSourceConnector.readAll(columnFamily, keyspace);
 

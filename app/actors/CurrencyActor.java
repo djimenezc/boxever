@@ -1,6 +1,6 @@
 package actors;
 
-import java.util.List;
+import java.util.Map;
 
 import models.DailyRate;
 
@@ -24,9 +24,9 @@ public class CurrencyActor extends Controller {
 			public Result apply(final WS.Response response) {
 				Result result;
 				try {
-					final List<DailyRate> dailyRateList = XmlProcessor.extractDailyRates(response.getBody());
+					final Map<String, DailyRate> dailyRateMap = XmlProcessor.extractDailyRates(response.getBody());
 
-					CassandraAstyanaxConnection.getInstance().writeDailyCurrencies(dailyRateList);
+					CassandraAstyanaxConnection.getInstance().writeDailyCurrencies(dailyRateMap);
 
 					result = ok("Data retrieved successfully from the remote API");
 

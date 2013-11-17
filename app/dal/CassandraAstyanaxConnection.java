@@ -1,6 +1,6 @@
 package dal;
 
-import java.util.List;
+import java.util.Map;
 
 import models.CurrencyRate;
 import models.CurrencyType;
@@ -147,17 +147,17 @@ public class CassandraAstyanaxConnection {
 	}
 
 	public OperationResult<Void> writeDailyCurrencies(final ColumnFamily<String, String> columnFamily,
-			final Keyspace keyspace, final List<DailyRate> dailyRates) throws ConnectionException {
+			final Keyspace keyspace, final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
 		final MutationBatch m = keyspace.prepareMutationBatch();
 
-		for (final DailyRate dailyRate : dailyRates) {
+		for (final java.util.Map.Entry<String, DailyRate> dailyRateEntry : dailyRateMap.entrySet()) {
 
 			final java.util.UUID uuid = UUIDUtil.getTimeUUID();
 
-			for (final CurrencyRate currencyRate : dailyRate.getCurrencyRates()) {
+			for (final CurrencyRate currencyRate : dailyRateEntry.getValue().getCurrencyRates()) {
 				m.withRow(columnFamily, UUIDUtil.cut(uuid.toString(), 16))
-						.putColumn(ModelConstants.COL_NAME_DATE, dailyRate.getDate().getTime(), null)
+						.putColumn(ModelConstants.COL_NAME_DATE, dailyRateEntry.getValue().getDate().getTime(), null)
 						.putColumn(ModelConstants.COL_NAME_CURRENCY, currencyRate.getCurrencyType().name(), null)
 						.putColumn(ModelConstants.COL_NAME_RATE, currencyRate.getRate(), null);
 			}
@@ -173,7 +173,8 @@ public class CassandraAstyanaxConnection {
 		return result;
 	}
 
-	public OperationResult<Void> writeDailyCurrencies(final List<DailyRate> dailyRateList) throws ConnectionException {
+	public OperationResult<Void> writeDailyCurrencies(final Map<String, DailyRate> dailyRateMap)
+			throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
 		final String keyspaceName = "currencies";
@@ -185,7 +186,7 @@ public class CassandraAstyanaxConnection {
 
 		keyspace.truncateColumnFamily(columnFamily);
 
-		return writeDailyCurrencies(columnFamily, keyspace, dailyRateList);
+		return writeDailyCurrencies(columnFamily, keyspace, dailyRateMap);
 	}
 
 }
