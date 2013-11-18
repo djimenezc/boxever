@@ -24,7 +24,14 @@ public class XmlProcessorTest {
 
 		final Map<String, DailyRate> dailyRateList = XmlProcessor.extractDailyRates(xmlString);
 
-		assertTrue(dailyRateList.size() > 0);
+		System.out.println("# dailyRate processed: " + dailyRateList.size());
+
+		assertTrue(dailyRateList.size() == 65);
+
+		for (final DailyRate dailyRate : dailyRateList.values()) {
+			System.out.println("Date: " + dailyRate.getDate() + "------" + dailyRate.getCurrencyRates().size());
+			assertTrue(dailyRate.getCurrencyRates().size() > 0);
+		}
 	}
 
 }

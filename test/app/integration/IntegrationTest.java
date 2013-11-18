@@ -1,23 +1,41 @@
 package app.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.test.Helpers.HTMLUNIT;
 import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.inMemoryDatabase;
 import static play.test.Helpers.running;
 import static play.test.Helpers.testServer;
 
+import java.nio.charset.Charset;
+import java.util.Map;
+
+import models.DailyRate;
+
 import org.junit.Test;
 
 import play.libs.F.Callback;
 import play.test.TestBrowser;
+import util.FileUtil;
+import xml.XmlProcessor;
+import app.dal.AstyanaxConnectorTest;
+
+import com.netflix.astyanax.Keyspace;
+import com.netflix.astyanax.model.ColumnFamily;
+
+import dal.CassandraAstyanaxConnection;
+import dal.ConnectKeyspaceConfig;
 
 public class IntegrationTest {
+
+	private static final String FILEPATH_STRING = "/test/resources/eurofxref-hist-90d.xml";
 
 	/**
 	 * add your integration test here in this example we just check if the welcome page is being shown
 	 */
 	@Test
-	public void test() {
+	public void testPageLoaded() {
 		running(testServer(3333, fakeApplication(inMemoryDatabase())), HTMLUNIT, new Callback<TestBrowser>() {
 			@Override
 			public void invoke(final TestBrowser browser) {
@@ -25,6 +43,42 @@ public class IntegrationTest {
 				// assertThat(browser.pageSource()).contains("Your new application is ready.");
 			}
 		});
+	}
+
+	@Test
+	public void testProcessXmlFileAndStoreInDatabase() throws Exception {
+
+		final String projectPath = System.getProperty("user.dir");
+		final String xmlString = FileUtil.readFile(projectPath + FILEPATH_STRING, Charset.forName("UTF-8"));
+
+		final Map<String, DailyRate> dailyRateList = XmlProcessor.extractDailyRates(xmlString);
+
+		System.out.println("# dailyRate processed: " + dailyRateList.size());
+
+		assertTrue(dailyRateList.size() == 65);
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		parameterObject.setKeyspace(AstyanaxConnectorTest.DEFAULT_KEYSPACE);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		assertEquals(AstyanaxConnectorTest.DEFAULT_KEYSPACE, keyspace.getKeyspaceName());
+
+		final String columnFamilyName = "dailyCurrencies2";
+
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
+				keyspace);
+
+		keyspace.truncateColumnFamily(columnFamily);
+
+		final Boolean result = CassandraAstyanaxConnection.getInstance().writeDailyCurrencies(columnFamily, keyspace,
+				dailyRateList);
+
+		CassandraAstyanaxConnection.getInstance().readAll(columnFamily, keyspace);
+
+		if (columnFamily == null) {
+			keyspace.dropColumnFamily(columnFamily);
+		}
+		assertTrue(result);
 	}
 
 }

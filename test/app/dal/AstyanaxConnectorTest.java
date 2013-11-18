@@ -2,6 +2,7 @@ package app.dal;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,37 +29,11 @@ import dal.ConnectKeyspaceConfig;
 
 public class AstyanaxConnectorTest {
 
-	private static final String TEST_KEYSPACE = "test";
-	private static final String TEST_KEYSPACE_2 = "test_drop";
-	private CassandraAstyanaxConnection dataSourceConnector;
+	public static final String DEFAULT_KEYSPACE = "currencies";
+	public static final String TEST_KEYSPACE = "test";
+	public static final String TEST_KEYSPACE_2 = "test_drop";
 
-	@Test
-	public void connectCurrenciesKeyspaceTest() {
-
-		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		final String keyspaceName = "currencies";
-		parameterObject.setKeyspace(keyspaceName);
-		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
-
-		assertEquals(keyspaceName, keyspace.getKeyspaceName());
-	}
-
-	private Keyspace createTestKeySpace(final String keyspaceId) throws ConnectionException {
-
-		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		parameterObject.setKeyspace(keyspaceId);
-		final Keyspace keyspace = CassandraAstyanaxConnection.createKeyspace(parameterObject);
-
-		return keyspace;
-	}
-
-	private void dropKeyspace(final Keyspace keyspace) throws ConnectionException {
-
-		final OperationResult<SchemaChangeResult> operationResult = keyspace.dropKeyspace();
-		assertNotNull(operationResult.getResult().getSchemaId());
-	}
-
-	private Map<String, DailyRate> generateDailyRatesMap() {
+	public static Map<String, DailyRate> generateDailyRatesMap() {
 
 		final Map<String, DailyRate> dailyRatesList = new HashMap<String, DailyRate>();
 		List<CurrencyRate> currencyRates = new ArrayList<CurrencyRate>();
@@ -78,6 +53,33 @@ public class AstyanaxConnectorTest {
 		dailyRatesList.put("2013-09-12", dailyRate);
 
 		return dailyRatesList;
+	}
+
+	private CassandraAstyanaxConnection dataSourceConnector;
+
+	@Test
+	public void connectCurrenciesKeyspaceTest() {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		parameterObject.setKeyspace(DEFAULT_KEYSPACE);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		assertEquals(DEFAULT_KEYSPACE, keyspace.getKeyspaceName());
+	}
+
+	private Keyspace createTestKeySpace(final String keyspaceId) throws ConnectionException {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		parameterObject.setKeyspace(keyspaceId);
+		final Keyspace keyspace = CassandraAstyanaxConnection.createKeyspace(parameterObject);
+
+		return keyspace;
+	}
+
+	private void dropKeyspace(final Keyspace keyspace) throws ConnectionException {
+
+		final OperationResult<SchemaChangeResult> operationResult = keyspace.dropKeyspace();
+		assertNotNull(operationResult.getResult().getSchemaId());
 	}
 
 	@Before
@@ -158,11 +160,10 @@ public class AstyanaxConnectorTest {
 	public void testInsertDailyRates() throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		final String keyspaceName = "currencies";
-		parameterObject.setKeyspace(keyspaceName);
+		parameterObject.setKeyspace(DEFAULT_KEYSPACE);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
-		assertEquals(keyspaceName, keyspace.getKeyspaceName());
+		assertEquals(DEFAULT_KEYSPACE, keyspace.getKeyspaceName());
 
 		final Map<String, DailyRate> dailyRatesMap = generateDailyRatesMap();
 		final String columnFamilyName = "dailyCurrencies2";
@@ -170,22 +171,21 @@ public class AstyanaxConnectorTest {
 		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
 				keyspace);
 
-		final OperationResult<Void> result = dataSourceConnector.writeDailyCurrencies(columnFamily, keyspace,
-				dailyRatesMap);
+		final Boolean result = dataSourceConnector.writeDailyCurrencies(columnFamily, keyspace, dailyRatesMap);
 
 		dataSourceConnector.readAll(columnFamily, keyspace);
 
 		if (columnFamily == null) {
 			keyspace.dropColumnFamily(columnFamily);
 		}
-		assertNotNull(result);
+		assertTrue(result);
 	}
 
 	@Test
 	public void testReadDailyRate() throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		final String keyspaceName = "currencies";
+		final String keyspaceName = DEFAULT_KEYSPACE;
 		parameterObject.setKeyspace(keyspaceName);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
@@ -202,7 +202,7 @@ public class AstyanaxConnectorTest {
 	public void testReadDailyRateByCurrency() throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		final String keyspaceName = "currencies";
+		final String keyspaceName = DEFAULT_KEYSPACE;
 		parameterObject.setKeyspace(keyspaceName);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 

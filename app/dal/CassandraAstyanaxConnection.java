@@ -6,8 +6,7 @@ import models.CurrencyRate;
 import models.CurrencyType;
 import models.DailyRate;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import util.UUIDUtil;
 
@@ -34,11 +33,14 @@ public class CassandraAstyanaxConnection {
 		static final CassandraAstyanaxConnection connection = new CassandraAstyanaxConnection();
 	}
 
+	private static final String CURRENCIES_KEYSPACE = "currencies";
+
 	private static final String DAILY_CURRENCIES_FC = "dailyCurrencies";
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(CassandraAstyanaxConnection.class);
+	private static final Logger LOGGER = Logger.getLogger(CassandraAstyanaxConnection.class);
 
 	public static AstyanaxContext<Keyspace> connectClusterContext(final ConnectKeyspaceConfig parameterObject) {
+
 		final AstyanaxContext<Keyspace> context = new AstyanaxContext.Builder()
 				.forKeyspace(parameterObject.getKeyspace())
 				.withAstyanaxConfiguration(
@@ -146,39 +148,40 @@ public class CassandraAstyanaxConnection {
 
 	}
 
-	public OperationResult<Void> writeDailyCurrencies(final ColumnFamily<String, String> columnFamily,
-			final Keyspace keyspace, final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
+	public Boolean writeDailyCurrencies(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace,
+			final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
+		Boolean result = true;
 		final MutationBatch m = keyspace.prepareMutationBatch();
 
 		for (final java.util.Map.Entry<String, DailyRate> dailyRateEntry : dailyRateMap.entrySet()) {
 
-			final java.util.UUID uuid = UUIDUtil.getTimeUUID();
-
 			for (final CurrencyRate currencyRate : dailyRateEntry.getValue().getCurrencyRates()) {
-				m.withRow(columnFamily, UUIDUtil.cut(uuid.toString(), 16))
+
+				final String uuidString = UUIDUtil.cut(UUIDUtil.getTimeUUID().toString(), 16);
+				LOGGER.debug("currencyRate" + currencyRate.getCurrencyType() + currencyRate.getRate() + "id: "
+						+ uuidString);
+
+				m.withRow(columnFamily, uuidString)
 						.putColumn(ModelConstants.COL_NAME_DATE, dailyRateEntry.getValue().getDate().getTime(), null)
 						.putColumn(ModelConstants.COL_NAME_CURRENCY, currencyRate.getCurrencyType().name(), null)
 						.putColumn(ModelConstants.COL_NAME_RATE, currencyRate.getRate(), null);
 			}
 		}
 
-		OperationResult<Void> result = null;
-
 		try {
-			result = m.execute();
+			m.execute();
 		} catch (final ConnectionException e) {
 			LOGGER.error("Error inserting daily rates data", e);
+			result = false;
 		}
 		return result;
 	}
 
-	public OperationResult<Void> writeDailyCurrencies(final Map<String, DailyRate> dailyRateMap)
-			throws ConnectionException {
+	public Boolean writeDailyCurrencies(final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		final String keyspaceName = "currencies";
-		parameterObject.setKeyspace(keyspaceName);
+		parameterObject.setKeyspace(CURRENCIES_KEYSPACE);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
 		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(

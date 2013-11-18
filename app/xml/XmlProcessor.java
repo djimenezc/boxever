@@ -1,7 +1,9 @@
 package xml;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +17,7 @@ import models.DailyRate;
 
 import org.apache.commons.io.IOUtils;
 import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.xpath.XPath;
 
@@ -22,7 +25,8 @@ public class XmlProcessor {
 
 	private static final String API_DATE_FORMAT = "yy-MM-dd";
 
-	public static Map<String, DailyRate> extractDailyRates(final String xmlString) throws Exception {
+	public static Map<String, DailyRate> extractDailyRates(final String xmlString) throws JDOMException, IOException,
+			ParseException {
 
 		final SAXBuilder builder = new SAXBuilder();
 		final InputStream in = IOUtils.toInputStream(xmlString);
@@ -38,11 +42,11 @@ public class XmlProcessor {
 			final Element element = (Element) o;
 			final DateFormat formatter = new SimpleDateFormat(API_DATE_FORMAT);
 			final Element parentElement = (Element) element.getParent();
-			final String timeString = parentElement.getAttributeValue("time");
-			final Date date = formatter.parse(parentElement.getAttributeValue("time"));
+			final String timeString = parentElement.getAttributeValue(ApiConstants.TIME);
+			final Date date = formatter.parse(parentElement.getAttributeValue(ApiConstants.TIME));
 
-			final String currency = element.getAttributeValue("currency");
-			final String rate = element.getAttributeValue("rate");
+			final String currency = element.getAttributeValue(ApiConstants.CURRENCY);
+			final String rate = element.getAttributeValue(ApiConstants.RATE);
 
 			final CurrencyRate currencyRate = new CurrencyRate(CurrencyType.valueOf(currency), Double.valueOf(rate));
 
