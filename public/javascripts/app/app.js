@@ -9,10 +9,10 @@ myApp.config([ '$routeProvider', function($routeProvider) {
 	}).when('/contact', {
 		templateUrl : '/assets/partials/contact.html',
 		controller : 'ContactCtrl'
-	}).when('/', {
+	}).when('/home', {
 		templateUrl : '/assets/partials/main.html',
 		controller : 'CurrencyCtrl'
 	}).otherwise({
-		redirectTo : '/'
+		redirectTo : '/home'
 	});
 } ]);

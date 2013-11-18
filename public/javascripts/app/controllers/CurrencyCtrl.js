@@ -1,7 +1,5 @@
 'use strict';
 
-var currencyControllers = angular.module('currencyControllers', []);
-
 currencyControllers.controller('CurrencyCtrl', function ($scope, $http) {
 	
 	$http({method: 'GET', url: '/currency/list'}).
