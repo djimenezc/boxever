@@ -20,7 +20,7 @@ public class ApplicationTest {
 	public void renderTemplate() {
 		final Content html = views.html.index.render("");
 		assertThat(contentType(html)).isEqualTo("text/html");
-		assertThat(contentAsString(html)).contains("Select currency");
+		assertThat(contentAsString(html)).contains("Welcome to Boxever");
 	}
 
 	@Test
