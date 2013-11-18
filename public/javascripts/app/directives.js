@@ -2,11 +2,10 @@
 
 var currencyDirectives = angular.module('currencyDirectives', []);
 
-currencyDirectives.directive('lineChart', function () {
+currencyDirectives.directive('lineChart', function (currencyService) {
    
 	return function (scope, elem, attrs) {
         
-		
 		console.log('LineChart init');
 		var margin, width, height, currencyRates, x, y, xAxis, yAxis, svg, line;
 
@@ -81,21 +80,9 @@ currencyDirectives.directive('lineChart', function () {
 
 				callback(data);
 			});
-
-			// $.ajax({
-			// url : "/currency/get/" + Global.selectedCurrency,
-			// // beforeSend : function(xhr) {
-			// // xhr.overrideMimeType("text/plain; charset=x-user-defined");
-			// // }
-			// }).done(function(data) {
-			// data.forEach(function(d) {
-			// d.date = parseDate(d.date);
-			// d.close = +d.close;
-			// });
-
-			// callback(data);
-			// });
-
+			
+			var ratesData = currencyService.getCurrencyDataSelected(callback);
+			
 		};
 
 		resize();

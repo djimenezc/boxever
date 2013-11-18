@@ -1,5 +1,7 @@
 package dal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import models.CurrencyRate;
@@ -9,6 +11,7 @@ import models.DailyRate;
 import org.apache.log4j.Logger;
 
 import util.UUIDUtil;
+import base.ValuePair;
 
 import com.google.common.collect.ImmutableMap;
 import com.netflix.astyanax.AstyanaxContext;
@@ -23,6 +26,7 @@ import com.netflix.astyanax.impl.AstyanaxConfigurationImpl;
 import com.netflix.astyanax.model.ColumnFamily;
 import com.netflix.astyanax.model.ColumnList;
 import com.netflix.astyanax.model.CqlResult;
+import com.netflix.astyanax.model.Row;
 import com.netflix.astyanax.model.Rows;
 import com.netflix.astyanax.serializers.StringSerializer;
 import com.netflix.astyanax.thrift.ThriftFamilyFactory;
@@ -52,6 +56,7 @@ public class CassandraAstyanaxConnection {
 								.setSeeds(parameterObject.getSeed()))
 				.withConnectionPoolMonitor(new CountingConnectionPoolMonitor())
 				.buildKeyspace(ThriftFamilyFactory.getInstance());
+
 		return context;
 	}
 
@@ -103,6 +108,10 @@ public class CassandraAstyanaxConnection {
 		return ConnectionHolder.connection;
 	}
 
+	private CassandraAstyanaxConnection() {
+		super();
+	}
+
 	public OperationResult<ColumnList<String>> read(final ColumnFamily<String, String> columnFamily,
 			final Keyspace keyspace, final String id) {
 
@@ -148,6 +157,31 @@ public class CassandraAstyanaxConnection {
 
 	}
 
+	public List<ValuePair> readByCurrency(final CurrencyType currencyType) throws ConnectionException {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES_FC, keyspace);
+
+		final Rows<String, String> rows = this.readByCurrency(columnFamily, keyspace, currencyType);
+
+		final List<ValuePair> valuePairList = new ArrayList<ValuePair>();
+
+		for (final Row<String, String> row : rows) {
+
+			final ColumnList<String> cols = row.getColumns();
+
+			final String rate = cols.getStringValue(ModelConstants.COL_NAME_RATE, null);
+			final String dateString = Double.toString(cols.getDoubleValue(ModelConstants.COL_NAME_DATE, null));
+
+			valuePairList.add(new ValuePair(dateString, rate));
+		}
+
+		return valuePairList;
+	}
+
 	public Boolean writeDailyCurrencies(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace,
 			final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
@@ -180,8 +214,7 @@ public class CassandraAstyanaxConnection {
 
 	public Boolean writeDailyCurrencies(final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
-		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
-		parameterObject.setKeyspace(CURRENCIES_KEYSPACE);
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
 		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
@@ -189,7 +222,8 @@ public class CassandraAstyanaxConnection {
 
 		keyspace.truncateColumnFamily(columnFamily);
 
-		return writeDailyCurrencies(columnFamily, keyspace, dailyRateMap);
-	}
+		final Boolean result = writeDailyCurrencies(columnFamily, keyspace, dailyRateMap);
 
+		return result;
+	}
 }

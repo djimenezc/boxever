@@ -1,20 +1,31 @@
 'use strict';
 
-angular.module('currencyApp.services', [])
-	.factory('currencyService', function() {
+var currencyServices = angular.module('currencyServices', []);
+
+currencyServices
+	.factory('currencyService',  function($http) {
 	console.log('Currency service starting');
 	
 	return {
-    		getRateData : function(rateId) {
+		getCurrencyDataSelected : function( callback) {
     			console.log('getRateData');
     			
-    			$http({method: 'GET', url: '/currency/get/'+rateId}).
+    			var currencyId = 'USD';
+    			
+    			$http({method: 'GET', url: '/currency/get/'+currencyId}).
     			success(function(data, status, headers, config) {
     				// this callback will be called asynchronously
     				// when the response is available
     				console.log('data: '+ data)
+    				
+    				data.forEach(function(d) {
+    					d.date = parseDate(d.date);
+    					d.close = +d.close;
+    				});
+
+    				callback(data);    		
     			});
-    		},
+    		}
     		
     };
     

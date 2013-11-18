@@ -8,7 +8,7 @@ package dal;
  */
 public class ConnectKeyspaceConfig {
 
-	private static final int DEFAULT_MAX_CONNECTION_PER_HOST = 1;
+	private static final int DEFAULT_MAX_CONNECTION_PER_HOST = 4;
 	public static final String DEFAULT_CONNECTION_POOL = "MyConnectionPool";
 	public static final String DEFAULT_SEED = "127.0.0.1:9160";
 	public static final String DEFAULT_KEYSPACE = "system";
@@ -29,6 +29,11 @@ public class ConnectKeyspaceConfig {
 		seed = DEFAULT_SEED;
 		connectionPoolName = DEFAULT_CONNECTION_POOL;
 		maxConnectionPerHost = DEFAULT_MAX_CONNECTION_PER_HOST;
+	}
+
+	public ConnectKeyspaceConfig(final String keySpace) {
+		this();
+		keyspace = keySpace;
 	}
 
 	/**

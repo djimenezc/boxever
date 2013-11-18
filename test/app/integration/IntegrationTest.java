@@ -11,6 +11,7 @@ import static play.test.Helpers.testServer;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import models.CurrencyType;
 import models.DailyRate;
 
 import org.junit.Test;
@@ -23,6 +24,7 @@ import app.dal.AstyanaxConnectorTest;
 
 import com.netflix.astyanax.Keyspace;
 import com.netflix.astyanax.model.ColumnFamily;
+import com.netflix.astyanax.model.Rows;
 
 import dal.CassandraAstyanaxConnection;
 import dal.ConnectKeyspaceConfig;
@@ -73,12 +75,20 @@ public class IntegrationTest {
 		final Boolean result = CassandraAstyanaxConnection.getInstance().writeDailyCurrencies(columnFamily, keyspace,
 				dailyRateList);
 
-		CassandraAstyanaxConnection.getInstance().readAll(columnFamily, keyspace);
-
 		if (columnFamily == null) {
 			keyspace.dropColumnFamily(columnFamily);
 		}
 		assertTrue(result);
+
+		final Rows<String, String> rows = CassandraAstyanaxConnection.getInstance().readAll(columnFamily, keyspace);
+
+		assertTrue(rows.size() == dailyRateList.values().size()
+				* dailyRateList.values().iterator().next().getCurrencyRates().size());
+
+		final Rows<String, String> rowByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
+				columnFamily, keyspace, CurrencyType.USD);
+
+		assertTrue(rowByCurrency.size() == dailyRateList.values().size());
 	}
 
 }

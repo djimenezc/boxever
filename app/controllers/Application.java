@@ -18,6 +18,10 @@ import views.html.index;
 import actors.CurrencyActor;
 import base.ValuePair;
 
+import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
+
+import dal.CassandraAstyanaxConnection;
+
 public class Application extends Controller {
 
 	private static final String API_PATH = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
@@ -30,8 +34,27 @@ public class Application extends Controller {
 		return ok(jsonCurrencyRate);
 	}
 
-	public static Result getCurrencyRateData(final String value) {
-		return ok("value: {Boxever -- getCurrencyRateDaaasdar}");
+	public static Result getCurrencyRateData(final String currencyId) {
+
+		Result result = null;
+		// TODO extract into the service class
+		try {
+			final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
+			final List<ValuePair> ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
+					currencyType);
+
+			final ObjectMapper mapper = new ObjectMapper();
+			final JsonNode node = mapper.convertValue(ratesByCurrency, JsonNode.class);
+
+			result = ok(node);
+
+		} catch (final ConnectionException e) {
+			// TODO Auto-generated catch block
+			LOGGER.error("Error reading rates by currency " + currencyId);
+			result = internalServerError("Error processing request");
+		}
+
+		return result;
 	}
 
 	public static Result index() {

@@ -29,6 +29,7 @@ import dal.ConnectKeyspaceConfig;
 
 public class AstyanaxConnectorTest {
 
+	private static final String DAILY_CURRENCIES2 = "dailyCurrencies2";
 	public static final String DEFAULT_KEYSPACE = "currencies";
 	public static final String TEST_KEYSPACE = "test";
 	public static final String TEST_KEYSPACE_2 = "test_drop";
@@ -166,10 +167,9 @@ public class AstyanaxConnectorTest {
 		assertEquals(DEFAULT_KEYSPACE, keyspace.getKeyspaceName());
 
 		final Map<String, DailyRate> dailyRatesMap = generateDailyRatesMap();
-		final String columnFamilyName = "dailyCurrencies2";
 
-		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
-				keyspace);
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES2, keyspace);
 
 		final Boolean result = dataSourceConnector.writeDailyCurrencies(columnFamily, keyspace, dailyRatesMap);
 
@@ -189,10 +189,8 @@ public class AstyanaxConnectorTest {
 		parameterObject.setKeyspace(keyspaceName);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
-		final String columnFamilyName = "dailyCurrencies2";
-
-		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
-				keyspace);
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES2, keyspace);
 		assertNotNull(columnFamily);
 
 		dataSourceConnector.read(columnFamily, keyspace, "bfc9e920-4f9c-11");
@@ -206,10 +204,8 @@ public class AstyanaxConnectorTest {
 		parameterObject.setKeyspace(keyspaceName);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
 
-		final String columnFamilyName = "dailyCurrencies2";
-
-		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(columnFamilyName,
-				keyspace);
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES2, keyspace);
 		assertNotNull(columnFamily);
 
 		dataSourceConnector.readByCurrency(columnFamily, keyspace, CurrencyType.USD);

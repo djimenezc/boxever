@@ -1,6 +1,6 @@
 'use strict';
 
-var myApp = angular.module('currencyApp', ['ngRoute','currencyControllers','currencyDirectives']);
+var myApp = angular.module('currencyApp', ['ngRoute','currencyControllers','currencyDirectives','currencyServices']);
 
 myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/about', {
