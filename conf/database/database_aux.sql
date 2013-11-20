@@ -2,7 +2,7 @@ DROP TABLE dailyCurrencies;
 
 CREATE TABLE dailyCurrencies (
   id uuid PRIMARY KEY,
-  dateKey bigint,
+  dateKey timestamp,
   currency text,
   rate bigint
  );

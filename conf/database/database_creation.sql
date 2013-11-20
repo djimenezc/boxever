@@ -2,14 +2,14 @@ create keyspace currencies;
 
 CREATE TABLE dailyCurrencies (
   id uuid PRIMARY KEY,
-  dateKey bigint,
+  dateKey timestamp,
   currency text,
   rate bigint
  );
  
  CREATE TABLE dailyCurrencies2 (
   id uuid PRIMARY KEY,
-  dateKey bigint,
+  dateKey timestamp,
   currency text,
   rate bigint
  );

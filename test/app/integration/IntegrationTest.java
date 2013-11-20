@@ -9,6 +9,7 @@ import static play.test.Helpers.running;
 import static play.test.Helpers.testServer;
 
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.Map;
 
 import models.CurrencyType;
@@ -21,6 +22,7 @@ import play.test.TestBrowser;
 import util.FileUtil;
 import xml.XmlProcessor;
 import app.dal.AstyanaxConnectorTest;
+import base.ValuePair;
 
 import com.netflix.astyanax.Keyspace;
 import com.netflix.astyanax.model.ColumnFamily;
@@ -85,10 +87,14 @@ public class IntegrationTest {
 		assertTrue(rows.size() == dailyRateList.values().size()
 				* dailyRateList.values().iterator().next().getCurrencyRates().size());
 
-		final Rows<String, String> rowByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
+		final Rows<String, String> rowsByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
 				columnFamily, keyspace, CurrencyType.USD);
 
-		assertTrue(rowByCurrency.size() == dailyRateList.values().size());
+		final List<ValuePair> currencyRateValuePairList = CassandraAstyanaxConnection.getInstance()
+				.processCurrencyRateFromDatabase(rowsByCurrency);
+
+		assertTrue(rowsByCurrency.size() == dailyRateList.values().size());
+		assertTrue(currencyRateValuePairList.size() == dailyRateList.values().size());
 	}
 
 }

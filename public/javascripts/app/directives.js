@@ -71,17 +71,17 @@ currencyDirectives.directive('lineChart', function (currencyService) {
 		};
 
 		var fetchData = function(callback) {
-
-			d3.tsv("assets/mockData/data.tsv", function(error, data) {
-				data.forEach(function(d) {
-					d.date = parseDate(d.date);
-					d.close = +d.close;
-				});
-
-				callback(data);
-			});
+//
+//			d3.tsv("assets/mockData/data.tsv", function(error, data) {
+//				data.forEach(function(d) {
+//					d.date = parseDate(d.date);
+//					d.close = +d.close;
+//				});
+//
+//				callback(data);
+//			});
 			
-			var ratesData = currencyService.getCurrencyDataSelected(callback);
+			var ratesData = currencyService.getCurrencyDataSelected(parseDate,callback);
 			
 		};
 

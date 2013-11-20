@@ -7,20 +7,20 @@ currencyServices
 	console.log('Currency service starting');
 	
 	return {
-		getCurrencyDataSelected : function( callback) {
+		getCurrencyDataSelected : function(parseDate, callback) {
     			console.log('getRateData');
     			
     			var currencyId = 'USD';
     			
-    			$http({method: 'GET', url: '/currency/get/'+currencyId}).
+    			$http({method: 'GET', url: 'assets/mockData/data.json'}).
     			success(function(data, status, headers, config) {
     				// this callback will be called asynchronously
     				// when the response is available
-    				console.log('data: '+ data)
+    				console.dir('data: '+ data)
     				
     				data.forEach(function(d) {
-    					d.date = parseDate(d.date);
-    					d.close = +d.close;
+    					d.date = parseDate(d.name);
+    					d.close = +d.value;
     				});
 
     				callback(data);    		

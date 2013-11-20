@@ -23,6 +23,7 @@ import com.netflix.astyanax.connectionpool.OperationResult;
 import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
 import com.netflix.astyanax.ddl.SchemaChangeResult;
 import com.netflix.astyanax.model.ColumnFamily;
+import com.netflix.astyanax.model.Rows;
 
 import dal.CassandraAstyanaxConnection;
 import dal.ConnectKeyspaceConfig;
@@ -208,6 +209,8 @@ public class AstyanaxConnectorTest {
 				DAILY_CURRENCIES2, keyspace);
 		assertNotNull(columnFamily);
 
-		dataSourceConnector.readByCurrency(columnFamily, keyspace, CurrencyType.USD);
+		final Rows<String, String> rows = dataSourceConnector.readByCurrency(columnFamily, keyspace, CurrencyType.USD);
+
+		assertTrue(rows.size() > 0);
 	}
 }

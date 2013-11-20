@@ -1,6 +1,9 @@
 package dal;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +45,8 @@ public class CassandraAstyanaxConnection {
 	private static final String DAILY_CURRENCIES_FC = "dailyCurrencies";
 
 	private static final Logger LOGGER = Logger.getLogger(CassandraAstyanaxConnection.class);
+
+	private static final String DATE_FORMAT = "dd-MMM-yy";
 
 	public static AstyanaxContext<Keyspace> connectClusterContext(final ConnectKeyspaceConfig parameterObject) {
 
@@ -112,6 +117,24 @@ public class CassandraAstyanaxConnection {
 		super();
 	}
 
+	public List<ValuePair> processCurrencyRateFromDatabase(final Rows<String, String> rows) {
+		final List<ValuePair> valuePairList = new ArrayList<ValuePair>();
+
+		for (final Row<String, String> row : rows) {
+
+			final ColumnList<String> cols = row.getColumns();
+
+			final String rate = Double.toString(cols.getDoubleValue(ModelConstants.COL_NAME_RATE, null));
+			final Date date = cols.getDateValue(ModelConstants.COL_NAME_DATE, null);
+			final DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+			final String dateString = formatter.format(date);
+
+			valuePairList.add(new ValuePair(rate, dateString));
+		}
+
+		return valuePairList;
+	}
+
 	public OperationResult<ColumnList<String>> read(final ColumnFamily<String, String> columnFamily,
 			final Keyspace keyspace, final String id) {
 
@@ -167,19 +190,7 @@ public class CassandraAstyanaxConnection {
 
 		final Rows<String, String> rows = this.readByCurrency(columnFamily, keyspace, currencyType);
 
-		final List<ValuePair> valuePairList = new ArrayList<ValuePair>();
-
-		for (final Row<String, String> row : rows) {
-
-			final ColumnList<String> cols = row.getColumns();
-
-			final String rate = cols.getStringValue(ModelConstants.COL_NAME_RATE, null);
-			final String dateString = Double.toString(cols.getDoubleValue(ModelConstants.COL_NAME_DATE, null));
-
-			valuePairList.add(new ValuePair(dateString, rate));
-		}
-
-		return valuePairList;
+		return processCurrencyRateFromDatabase(rows);
 	}
 
 	public Boolean writeDailyCurrencies(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace,
@@ -197,7 +208,7 @@ public class CassandraAstyanaxConnection {
 						+ uuidString);
 
 				m.withRow(columnFamily, uuidString)
-						.putColumn(ModelConstants.COL_NAME_DATE, dailyRateEntry.getValue().getDate().getTime(), null)
+						.putColumn(ModelConstants.COL_NAME_DATE, dailyRateEntry.getValue().getDate(), null)
 						.putColumn(ModelConstants.COL_NAME_CURRENCY, currencyRate.getCurrencyType().name(), null)
 						.putColumn(ModelConstants.COL_NAME_RATE, currencyRate.getRate(), null);
 			}

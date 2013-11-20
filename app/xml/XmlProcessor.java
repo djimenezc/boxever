@@ -40,9 +40,9 @@ public class XmlProcessor {
 		final List<?> all2 = xpath.selectNodes(doc);
 		for (final Object o : all2) {
 			final Element element = (Element) o;
-			final DateFormat formatter = new SimpleDateFormat(API_DATE_FORMAT);
 			final Element parentElement = (Element) element.getParent();
 			final String timeString = parentElement.getAttributeValue(ApiConstants.TIME);
+			final DateFormat formatter = new SimpleDateFormat(API_DATE_FORMAT);
 			final Date date = formatter.parse(parentElement.getAttributeValue(ApiConstants.TIME));
 
 			final String currency = element.getAttributeValue(ApiConstants.CURRENCY);
