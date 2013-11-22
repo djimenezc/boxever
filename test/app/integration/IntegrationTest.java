@@ -2,14 +2,9 @@ package app.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static play.test.Helpers.HTMLUNIT;
-import static play.test.Helpers.fakeApplication;
-import static play.test.Helpers.inMemoryDatabase;
-import static play.test.Helpers.running;
-import static play.test.Helpers.testServer;
 
 import java.nio.charset.Charset;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
 
 import models.CurrencyType;
@@ -17,8 +12,6 @@ import models.DailyRate;
 
 import org.junit.Test;
 
-import play.libs.F.Callback;
-import play.test.TestBrowser;
 import util.FileUtil;
 import xml.XmlProcessor;
 import app.dal.AstyanaxConnectorTest;
@@ -38,16 +31,16 @@ public class IntegrationTest {
 	/**
 	 * add your integration test here in this example we just check if the welcome page is being shown
 	 */
-	@Test
-	public void testPageLoaded() {
-		running(testServer(3333, fakeApplication(inMemoryDatabase())), HTMLUNIT, new Callback<TestBrowser>() {
-			@Override
-			public void invoke(final TestBrowser browser) {
-				// browser.goTo("http://localhost:3333");
-				// assertThat(browser.pageSource()).contains("Your new application is ready.");
-			}
-		});
-	}
+	// @Test
+	// public void testPageLoaded() {
+	// running(testServer(3333, fakeApplication(inMemoryDatabase())), HTMLUNIT, new Callback<TestBrowser>() {
+	// @Override
+	// public void invoke(final TestBrowser browser) {
+	// // browser.goTo("http://localhost:3333");
+	// // assertThat(browser.pageSource()).contains("Your new application is ready.");
+	// }
+	// });
+	// }
 
 	@Test
 	public void testProcessXmlFileAndStoreInDatabase() throws Exception {
@@ -90,7 +83,7 @@ public class IntegrationTest {
 		final Rows<String, String> rowsByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
 				columnFamily, keyspace, CurrencyType.USD);
 
-		final List<ValuePair> currencyRateValuePairList = CassandraAstyanaxConnection.getInstance()
+		final Map<Date, ValuePair> currencyRateValuePairList = CassandraAstyanaxConnection.getInstance()
 				.processCurrencyRateFromDatabase(rowsByCurrency);
 
 		assertTrue(rowsByCurrency.size() == dailyRateList.values().size());

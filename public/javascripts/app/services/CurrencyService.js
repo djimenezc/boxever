@@ -12,7 +12,7 @@ currencyServices
     			
     			var currencyId = 'USD';
     			
-    			$http({method: 'GET', url: 'assets/mockData/data.json'}).
+    			$http({method: 'GET', url: '/currency/get/'+currencyId}).
     			success(function(data, status, headers, config) {
     				// this callback will be called asynchronously
     				// when the response is available

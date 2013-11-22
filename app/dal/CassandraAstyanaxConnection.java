@@ -2,10 +2,9 @@ package dal;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import models.CurrencyRate;
 import models.CurrencyType;
@@ -117,8 +116,8 @@ public class CassandraAstyanaxConnection {
 		super();
 	}
 
-	public List<ValuePair> processCurrencyRateFromDatabase(final Rows<String, String> rows) {
-		final List<ValuePair> valuePairList = new ArrayList<ValuePair>();
+	public Map<Date, ValuePair> processCurrencyRateFromDatabase(final Rows<String, String> rows) {
+		final Map<Date, ValuePair> valuePairSortedMap = new TreeMap<Date, ValuePair>();
 
 		for (final Row<String, String> row : rows) {
 
@@ -129,10 +128,10 @@ public class CassandraAstyanaxConnection {
 			final DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 			final String dateString = formatter.format(date);
 
-			valuePairList.add(new ValuePair(rate, dateString));
+			valuePairSortedMap.put(date, new ValuePair(rate, dateString));
 		}
 
-		return valuePairList;
+		return valuePairSortedMap;
 	}
 
 	public OperationResult<ColumnList<String>> read(final ColumnFamily<String, String> columnFamily,
@@ -180,7 +179,7 @@ public class CassandraAstyanaxConnection {
 
 	}
 
-	public List<ValuePair> readByCurrency(final CurrencyType currencyType) throws ConnectionException {
+	public Map<Date, ValuePair> readByCurrency(final CurrencyType currencyType) throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
 		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);

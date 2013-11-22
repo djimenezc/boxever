@@ -1,6 +1,8 @@
 package controllers;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import models.CurrencyType;
@@ -40,11 +42,11 @@ public class Application extends Controller {
 		// TODO extract into the service class
 		try {
 			final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
-			final List<ValuePair> ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
+			final Map<Date, ValuePair> ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
 					currencyType);
 
 			final ObjectMapper mapper = new ObjectMapper();
-			final JsonNode node = mapper.convertValue(ratesByCurrency, JsonNode.class);
+			final JsonNode node = mapper.convertValue(ratesByCurrency.values(), JsonNode.class);
 
 			result = ok(node);
 
