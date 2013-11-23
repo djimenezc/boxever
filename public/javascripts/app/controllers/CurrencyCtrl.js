@@ -15,8 +15,16 @@ currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currency
 		currencyService.refreshAllExchange();
 	};
 	
+	$scope.loading = true;
+	
+	$scope.$on('loading', function(e, value) {
+	    
+		$scope.loading = value;
+	  });
 	
 	$scope.updateRateData = function() {
+		
+		$scope.loading = true;
 		
 		var currencyId = $scope.selectedCurrency.value;
 		console.log('getRateData ' + currencyId);

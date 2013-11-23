@@ -2,7 +2,7 @@
 
 var currencyDirectives = angular.module('currencyDirectives', []);
 
-currencyDirectives.directive('lineChart',['currencyService', function (currencyService) {
+currencyDirectives.directive('lineChart',['currencyService', '$rootScope', function (currencyService, $rootScope) {
    
 	return function (scope, elem, attrs) {
         
@@ -54,7 +54,7 @@ currencyDirectives.directive('lineChart',['currencyService', function (currencyS
 			resize();
 			
 			data = data ? data : currencyRates;
-			
+			$rootScope.$broadcast("loading", false);
 			if (data) {
 				currencyRates = data;
 				x.domain(d3.extent(data, function(d) {
@@ -75,6 +75,7 @@ currencyDirectives.directive('lineChart',['currencyService', function (currencyS
 				svg.append("path").datum(data).attr("class", "line")
 						.attr("d", line);
 			}
+			
 		};
 
 		var fetchData = function() {
