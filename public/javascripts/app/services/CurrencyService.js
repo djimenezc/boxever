@@ -20,12 +20,14 @@ currencyServices
 
     				console.dir('Retrieved currency data successfully!!!! ');
     				
-    				data.forEach(function(d) {
-    					d.date = dateParser(d.name);
-    					d.close = +d.value;
-    				});
-
-    				$rootScope.$broadcast("updateChart", data);
+    				if(data) {
+    					data.forEach(function(d) {
+    						d.date = dateParser(d.name);
+    						d.close = +d.value;
+    					});
+    					
+    					$rootScope.$broadcast("updateChart", data);
+    				}
     			});
     		},
     		

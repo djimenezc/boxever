@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import dal.CassandraAstyanaxConnection;
 
 public class Application extends Controller {
 
+	private static final CurrencyType DEFAULT_CURRENCY_TYPE = CurrencyType.USD;
 	private static final String API_PATH = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
 	private static final Logger LOGGER = Logger.getLogger(Application.class);
 
@@ -83,19 +85,28 @@ public class Application extends Controller {
 
 	public static Result getCurrencyRateData(final String currencyId) {
 
+		LOGGER.info("getCurrencyRateData " + currencyId);
+
 		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = checkAndGetCurrencyRateMapAsynchronously(currencyId);
 
 		return async(promiseOfLoadTable.map(new Function<Map<Date, ValuePair>, Result>() {
 			@Override
 			public Result apply(final Map<Date, ValuePair> ratesByCurrency) {
 
-				Status result;
+				Result result;
 
 				if (ratesByCurrency != null) {
 					final ObjectMapper mapper = new ObjectMapper();
 					final JsonNode jsonNode = mapper.convertValue(ratesByCurrency.values(), JsonNode.class);
 
-					result = ok(jsonNode);
+					// The table is empty
+					if (ratesByCurrency.size() < 1) {
+						LOGGER.info("Currency table empty, loading data from the remote API");
+						result = refreshAll();
+					}
+					else {
+						result = ok(jsonNode);
+					}
 				}
 				else {
 					result = internalServerError("Error processing get currency rate request");
@@ -117,9 +128,10 @@ public class Application extends Controller {
 
 		CassandraAstyanaxConnection.getInstance().writeDailyCurrencies(dailyRateMap);
 
-		final ValuePair valuePair = new ValuePair("status", "Retrieved data from the 3rd party API successfully");
+		final Collection<ValuePair> response = CassandraAstyanaxConnection.getInstance()
+				.readByCurrency(DEFAULT_CURRENCY_TYPE).values();
 		final ObjectMapper mapper = new ObjectMapper();
-		final JsonNode node = mapper.convertValue(valuePair, JsonNode.class);
+		final JsonNode node = mapper.convertValue(response, JsonNode.class);
 
 		return node;
 	}
