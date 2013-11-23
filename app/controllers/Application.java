@@ -35,6 +35,25 @@ public class Application extends Controller {
 	private static final String API_PATH = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
 	private static final Logger LOGGER = Logger.getLogger(Application.class);
 
+	private static Promise<Map<Date, ValuePair>> checkAndGetCurrencyRateMapAsynchronously(final String currencyId) {
+
+		return Akka.future(new Callable<Map<Date, ValuePair>>() {
+			@Override
+			public Map<Date, ValuePair> call() {
+				Map<Date, ValuePair> ratesByCurrency = null;
+
+				try {
+					final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
+					ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(currencyType);
+
+				} catch (final ConnectionException e) {
+					LOGGER.error("Error reading rates by currency " + currencyId);
+				}
+				return ratesByCurrency;
+			}
+		});
+	}
+
 	private static Promise<JsonNode> computeCurrencyListAsynchronously() {
 
 		final Promise<JsonNode> result = Akka.future(new Callable<JsonNode>() {
@@ -64,23 +83,27 @@ public class Application extends Controller {
 
 	public static Result getCurrencyRateData(final String currencyId) {
 
-		Result result = null;
-		try {
-			final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
-			final Map<Date, ValuePair> ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(
-					currencyType);
+		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = checkAndGetCurrencyRateMapAsynchronously(currencyId);
 
-			final ObjectMapper mapper = new ObjectMapper();
-			final JsonNode node = mapper.convertValue(ratesByCurrency.values(), JsonNode.class);
+		return async(promiseOfLoadTable.map(new Function<Map<Date, ValuePair>, Result>() {
+			@Override
+			public Result apply(final Map<Date, ValuePair> ratesByCurrency) {
 
-			result = ok(node);
+				Status result;
 
-		} catch (final ConnectionException e) {
-			LOGGER.error("Error reading rates by currency " + currencyId);
-			result = internalServerError("Error processing request");
-		}
+				if (ratesByCurrency != null) {
+					final ObjectMapper mapper = new ObjectMapper();
+					final JsonNode jsonNode = mapper.convertValue(ratesByCurrency.values(), JsonNode.class);
 
-		return result;
+					result = ok(jsonNode);
+				}
+				else {
+					result = internalServerError("Error processing get currency rate request");
+				}
+
+				return result;
+			}
+		}));
 	}
 
 	public static Result index() {
