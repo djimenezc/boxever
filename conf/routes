@@ -4,7 +4,7 @@
 
 # Home page
 GET     /                           				   controllers.Application.index()
-GET     /currency/refreshAll             controllers.Application.refreshAll()
+GET     /currency/refreshAll             controllers.Application.refreshFromRemoteAPI()
 GET     /currency/get/:value              controllers.Application.getCurrencyRateData(value: String)
 GET     /currency/list          				controllers.Application.currencyList()
 

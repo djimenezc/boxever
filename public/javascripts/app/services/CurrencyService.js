@@ -13,7 +13,7 @@ currencyServices
 		getCurrencyDataSelected : function(currencyId) {
     			console.log('getRateData');
     			
-    			var currencyId = currencyId ? currencyId : 'USD';
+    			var currencyId = currencyId ? currencyId : defaultCurrency;
     			
     			$http({method: 'GET', url: '/currency/get/'+currencyId}).
     			success(function(data, status, headers, config) {

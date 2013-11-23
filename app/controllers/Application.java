@@ -102,7 +102,7 @@ public class Application extends Controller {
 					// The table is empty
 					if (ratesByCurrency.size() < 1) {
 						LOGGER.info("Currency table empty, loading data from the remote API");
-						result = refreshAll();
+						result = refreshFromRemoteAPI();
 					}
 					else {
 						result = ok(jsonNode);
@@ -118,7 +118,22 @@ public class Application extends Controller {
 	}
 
 	public static Result index() {
-		return ok(index.render("Boxever"));
+
+		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = checkAndGetCurrencyRateMapAsynchronously(DEFAULT_CURRENCY_TYPE
+				.name());
+
+		return async(promiseOfLoadTable.map(new Function<Map<Date, ValuePair>, Result>() {
+			@Override
+			public Result apply(final Map<Date, ValuePair> currencyRates) throws Throwable {
+
+				if (currencyRates.size() < 1) {
+					LOGGER.info("Get index(): Currency table empty, loading data from the remote API");
+					refreshFromRemoteAPI();
+				}
+
+				return ok(index.render(DEFAULT_CURRENCY_TYPE.name()));
+			}
+		}));
 	}
 
 	private static JsonNode processXmlResponse(final String xmlString) throws JDOMException, IOException,
@@ -136,7 +151,7 @@ public class Application extends Controller {
 		return node;
 	}
 
-	public static Result refreshAll() {
+	public static Result refreshFromRemoteAPI() {
 
 		LOGGER.info("Refresh all exchange rates");
 
