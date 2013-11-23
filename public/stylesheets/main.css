@@ -71,3 +71,6 @@ body {
 	margin-top: 1em;
 }
 
+#currencySelect {
+	width: 9em;
+}

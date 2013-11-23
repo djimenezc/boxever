@@ -2,7 +2,7 @@
 
 var currencyControllers = angular.module('currencyControllers', []);
 
-currencyControllers.controller('GlobalCtrl', function ($scope, $http,$location) {
+currencyControllers.controller('GlobalCtrl', function ($scope, $location) {
 	
 	console.log('Contact init');
 	

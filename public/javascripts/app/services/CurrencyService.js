@@ -1,32 +1,44 @@
 'use strict';
 
-var currencyServices = angular.module('currencyServices', []);
-
 currencyServices
-	.factory('currencyService',  function($http) {
+	.factory('currencyService', ['$http', '$rootScope', function($http, $rootScope) {
 	console.log('Currency service starting');
 	
+	var dateParser = function(date) {
+
+		return d3.time.format("%d-%b-%y").parse(date);
+	}
+	
 	return {
-		getCurrencyDataSelected : function(parseDate, callback) {
+		getCurrencyDataSelected : function(currencyId) {
     			console.log('getRateData');
     			
-    			var currencyId = 'USD';
+    			var currencyId = currencyId ? currencyId : 'USD';
     			
     			$http({method: 'GET', url: '/currency/get/'+currencyId}).
     			success(function(data, status, headers, config) {
     				// this callback will be called asynchronously
     				// when the response is available
-    				console.dir('data: '+ data)
+    				console.dir('Retrieved currency data successfully!!!! ');
     				
     				data.forEach(function(d) {
-    					d.date = parseDate(d.name);
+    					d.date = dateParser(d.name);
     					d.close = +d.value;
     				});
 
-    				callback(data);    		
+    				$rootScope.$broadcast("updateChart", data);
     			});
+    		},
+    		
+    		refreshAllExchange : function() {
+    			$http({method: 'GET', url: '/currency/refreshAll'}).
+    			  success(function(data, status, headers, config) {
+    			    // this callback will be called asynchronously
+    			    // when the response is available
+    				  console.log('Result refresh all call:' + data);
+    			  });
     		}
     		
     };
     
-  });
+  }]);

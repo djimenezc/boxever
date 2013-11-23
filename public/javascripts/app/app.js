@@ -2,6 +2,8 @@
 
 var myApp = angular.module('currencyApp', ['ngRoute','currencyControllers','currencyDirectives','currencyServices']);
 
+var currencyServices = angular.module('currencyServices', []);
+
 myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/about', {
 		templateUrl : '/assets/partials/about.html',

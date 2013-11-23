@@ -6,8 +6,8 @@
 			<div class="well sidebar-nav">
 				<ul class="nav nav-list">
 					<li class="nav-header">Select currency</li>
-					<li><select ng-model="selectedCurrency"
-						ng-options="c.name for c in currencies">
+					<li><select id="currencySelect" ng-model="selectedCurrency"
+						ng-options="c.name for c in currencies" ng-change="updateRateData()">
 					</select></li>
 					<li><a href ng-click="getRateData()">Refresh
 							{{selectedCurrency.name}}</a></li>
@@ -24,7 +24,10 @@
 					the European currency</p>
 			</div>
 			<div class="row-fluid">
-				<div id="lineChart" line-chart=""></div>
+				<div id="lineChart" ng-show="!loading" line-chart=""></div>
+				<div ng-show="loading">
+			    		Loading...
+				</div>
 			</div>
 			<!--/row-->
 		</div>

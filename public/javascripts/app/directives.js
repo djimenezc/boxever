@@ -2,14 +2,19 @@
 
 var currencyDirectives = angular.module('currencyDirectives', []);
 
-currencyDirectives.directive('lineChart', function (currencyService) {
+currencyDirectives.directive('lineChart',['currencyService', function (currencyService) {
    
 	return function (scope, elem, attrs) {
         
 		console.log('LineChart init');
-		var margin, width, height, currencyRates, x, y, xAxis, yAxis, svg, line;
-
-		var parseDate = d3.time.format("%d-%b-%y").parse;
+		var margin, width, height, currencyRates, x, y, xAxis, yAxis, svg, line, dataStore;
+		
+		scope.$on('updateChart', function(e, data) {
+		    
+			console.log('Updating the chart');
+			
+		    updateChart(data);
+		  });
 
 		var resize = function resize() {
 
@@ -42,12 +47,14 @@ currencyDirectives.directive('lineChart', function (currencyService) {
 					height + margin.top + margin.bottom).append("g").attr(
 					"transform",
 					"translate(" + margin.left + "," + margin.top + ")");
-
-			updateChart(currencyRates);
 		};
 
 		var updateChart = function(data) {
 
+			resize();
+			
+			data = data ? data : currencyRates;
+			
 			if (data) {
 				currencyRates = data;
 				x.domain(d3.extent(data, function(d) {
@@ -63,33 +70,23 @@ currencyDirectives.directive('lineChart', function (currencyService) {
 				svg.append("g").attr("class", "y axis").call(yAxis).append("text")
 						.attr("transform", "rotate(-90)").attr("y", 6).attr("dy",
 								".71em").style("text-anchor", "end").text(
-								"Price (€)");
+								"Price");
 
 				svg.append("path").datum(data).attr("class", "line")
 						.attr("d", line);
 			}
 		};
 
-		var fetchData = function(callback) {
-//
-//			d3.tsv("assets/mockData/data.tsv", function(error, data) {
-//				data.forEach(function(d) {
-//					d.date = parseDate(d.date);
-//					d.close = +d.close;
-//				});
-//
-//				callback(data);
-//			});
-			
-			var ratesData = currencyService.getCurrencyDataSelected(parseDate,callback);
+		var fetchData = function() {
+
+			var ratesData = currencyService.getCurrencyDataSelected();
 			
 		};
 
 		resize();
 
-		d3.select(window).on('resize', resize);
+		d3.select(window).on('resize', updateChart);
 
-		fetchData(updateChart);
-		
+		fetchData();
     };
-});
+}]);

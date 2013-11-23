@@ -1,6 +1,6 @@
 'use strict';
 
-currencyControllers.controller('CurrencyCtrl', function ($scope, $http) {
+currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currencyService) {
 	
 	$http({method: 'GET', url: '/currency/list'}).
 	  success(function(data, status, headers, config) {
@@ -12,26 +12,16 @@ currencyControllers.controller('CurrencyCtrl', function ($scope, $http) {
 
 		console.log('refreshAll');
 		
-		$http({method: 'GET', url: '/currency/refreshAll'}).
-		  success(function(data, status, headers, config) {
-		    // this callback will be called asynchronously
-		    // when the response is available
-			  console.log('Result refresh all call:' + data);
-		  });
+		currencyService.refreshAllExchange();
 	};
 	
 	
-	$scope.getRateData = function() {
+	$scope.updateRateData = function() {
 		
-		console.log('getRateData');
-		var rateId = $scope.value;
+		var currencyId = $scope.selectedCurrency.value;
+		console.log('getRateData ' + currencyId);
 		
-		$http({method: 'GET', url: '/currency/get/'+rateId}).
-		success(function(data, status, headers, config) {
-			// this callback will be called asynchronously
-			// when the response is available
-			console.log('data: '+ data)
-		});
+		currencyService.getCurrencyDataSelected(currencyId);
 	};
 	
 });

@@ -213,4 +213,22 @@ public class AstyanaxConnectorTest {
 
 		assertTrue(rows.size() > 0);
 	}
+
+	@Test
+	public void testReadDailyRateByDifferentCurrencies() throws ConnectionException {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig();
+		final String keyspaceName = DEFAULT_KEYSPACE;
+		parameterObject.setKeyspace(keyspaceName);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		final ColumnFamily<String, String> columnFamily = CassandraAstyanaxConnection.getColumnFamily(
+				DAILY_CURRENCIES2, keyspace);
+		assertNotNull(columnFamily);
+
+		for (final CurrencyType currencyType : CurrencyType.values()) {
+			final Rows<String, String> rows = dataSourceConnector.readByCurrency(columnFamily, keyspace, currencyType);
+			assertTrue(rows.size() > 0);
+		}
+	}
 }
