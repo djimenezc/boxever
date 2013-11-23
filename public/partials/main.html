@@ -9,7 +9,7 @@
 					<li><select id="currencySelect" ng-model="selectedCurrency"
 						ng-options="c.name for c in currencies" ng-change="updateRateData()">
 					</select></li>
-					<li><a href ng-click="getRateData()">Refresh
+					<li><a href ng-click="updateRateData()">Refresh
 							{{selectedCurrency.name}}</a></li>
 					<li><a href ng-click="refreshAll()">Refresh all</a></li>
 				</ul>
