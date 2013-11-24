@@ -33,6 +33,13 @@ import com.netflix.astyanax.model.Rows;
 import com.netflix.astyanax.serializers.StringSerializer;
 import com.netflix.astyanax.thrift.ThriftFamilyFactory;
 
+/**
+ * Class to handle the connection and different operation with Cassandra using Astyanax driver. The class implement the
+ * singleton pattern
+ * 
+ * @author david
+ * 
+ */
 public class CassandraAstyanaxConnection {
 
 	private static class ConnectionHolder {
@@ -47,6 +54,12 @@ public class CassandraAstyanaxConnection {
 
 	private static final String DATE_FORMAT = "dd-MMM-yy";
 
+	/**
+	 * Method to connect with Cassandra using ConnectKeyspaceConfig parameters
+	 * 
+	 * @param parameterObject
+	 * @return AstyanaxContext that represents the connection with Cassandra
+	 */
 	public static AstyanaxContext<Keyspace> connectClusterContext(final ConnectKeyspaceConfig parameterObject) {
 
 		final AstyanaxContext<Keyspace> context = new AstyanaxContext.Builder()
@@ -64,6 +77,13 @@ public class CassandraAstyanaxConnection {
 		return context;
 	}
 
+	/**
+	 * Method that connect a Cassandra Keyspace base on the ConnectKeyspaceConfig parameter and start the Astyanax
+	 * context
+	 * 
+	 * @param parameterObject
+	 * @return
+	 */
 	public static Keyspace connectKeyspace(final ConnectKeyspaceConfig parameterObject) {
 
 		final AstyanaxContext<Keyspace> context = connectClusterContext(parameterObject);
@@ -74,6 +94,13 @@ public class CassandraAstyanaxConnection {
 		return keyspace;
 	}
 
+	/**
+	 * Method to create a new keyspace base on ConnectKeyspaceConfig parameters
+	 * 
+	 * @param parameterObject
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public static Keyspace createKeyspace(final ConnectKeyspaceConfig parameterObject) throws ConnectionException {
 
 		final AstyanaxContext<Keyspace> ctx = connectClusterContext(parameterObject);
@@ -89,6 +116,14 @@ public class CassandraAstyanaxConnection {
 		return keyspace;
 	}
 
+	/**
+	 * Method to create a column family in a specific keyspace
+	 * 
+	 * @param columnName
+	 * @param keyspace
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public static ColumnFamily<String, String> createSimpleColumnFamily(final String columnName, final Keyspace keyspace)
 			throws ConnectionException {
 
@@ -99,6 +134,14 @@ public class CassandraAstyanaxConnection {
 		return cfStandard;
 	}
 
+	/**
+	 * Method to get a column family from a keyspace
+	 * 
+	 * @param columnName
+	 * @param keyspace
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public static ColumnFamily<String, String> getColumnFamily(final String columnName, final Keyspace keyspace)
 			throws ConnectionException {
 
@@ -108,14 +151,28 @@ public class CassandraAstyanaxConnection {
 		return cfStandard;
 	}
 
+	/**
+	 * Method to get a instance of the CassandraAstyanaxConnection
+	 * 
+	 * @return
+	 */
 	public static CassandraAstyanaxConnection getInstance() {
 		return ConnectionHolder.connection;
 	}
 
+	/**
+	 * Default constructor hidden to force to use the getInstance method to use CassandraAstyanaxConnection object
+	 */
 	private CassandraAstyanaxConnection() {
 		super();
 	}
 
+	/**
+	 * Method to convert a list of rows in a Map of value pair with the currency and the rate identify by date
+	 * 
+	 * @param rows
+	 * @return
+	 */
 	public Map<Date, ValuePair> processCurrencyRateFromDatabase(final Rows<String, String> rows) {
 		final Map<Date, ValuePair> valuePairSortedMap = new TreeMap<Date, ValuePair>();
 
@@ -134,6 +191,14 @@ public class CassandraAstyanaxConnection {
 		return valuePairSortedMap;
 	}
 
+	/**
+	 * Method to get a row from a column family identify for the id parameter
+	 * 
+	 * @param columnFamily
+	 * @param keyspace
+	 * @param id
+	 * @return
+	 */
 	public OperationResult<ColumnList<String>> read(final ColumnFamily<String, String> columnFamily,
 			final Keyspace keyspace, final String id) {
 
@@ -149,6 +214,13 @@ public class CassandraAstyanaxConnection {
 		return result;
 	}
 
+	/**
+	 * Method to get all the elements store in a column family
+	 * 
+	 * @param columnFamily
+	 * @param keyspace
+	 * @return
+	 */
 	public Rows<String, String> readAll(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace) {
 		LOGGER.debug("read()");
 		try {
@@ -161,6 +233,14 @@ public class CassandraAstyanaxConnection {
 		}
 	}
 
+	/**
+	 * Method to get all the elements store in a column family with a specific currency
+	 * 
+	 * @param columnFamily
+	 * @param keyspace
+	 * @param currencyType
+	 * @return
+	 */
 	public Rows<String, String> readByCurrency(final ColumnFamily<String, String> columnFamily,
 			final Keyspace keyspace, final CurrencyType currencyType) {
 
@@ -179,6 +259,13 @@ public class CassandraAstyanaxConnection {
 
 	}
 
+	/**
+	 * Method to get all the elements in the currency column family with a specific currency
+	 * 
+	 * @param currencyType
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public Map<Date, ValuePair> readByCurrency(final CurrencyType currencyType) throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
@@ -192,6 +279,11 @@ public class CassandraAstyanaxConnection {
 		return processCurrencyRateFromDatabase(rows);
 	}
 
+	/**
+	 * Method to remove all the rows of the currency column family
+	 * 
+	 * @return
+	 */
 	public Boolean truncateCurrencyTable() {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
@@ -208,6 +300,15 @@ public class CassandraAstyanaxConnection {
 		return result;
 	}
 
+	/**
+	 * Method to write a Map of DailyRate in a column family
+	 * 
+	 * @param columnFamily
+	 * @param keyspace
+	 * @param dailyRateMap
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public Boolean writeDailyCurrencies(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace,
 			final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
@@ -238,6 +339,13 @@ public class CassandraAstyanaxConnection {
 		return result;
 	}
 
+	/**
+	 * Method to write a Map of DailyRate in the currency column family
+	 * 
+	 * @param dailyRateMap
+	 * @return
+	 * @throws ConnectionException
+	 */
 	public Boolean writeDailyCurrencies(final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 
 		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);

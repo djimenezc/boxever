@@ -4,6 +4,9 @@
 package dal;
 
 /**
+ * Bean that store the minimum information to connect Astyanax with Cassandra A defult configuration is define in the 0
+ * arguments constructor to connect with an Cassandra instance running in local
+ * 
  * @author david
  */
 public class ConnectKeyspaceConfig {

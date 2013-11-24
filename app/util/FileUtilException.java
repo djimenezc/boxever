@@ -1,5 +1,11 @@
 package util;
 
+/**
+ * Use this exception when you work with files to indicate anomalous behaviors
+ * 
+ * @author david
+ * 
+ */
 public class FileUtilException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;

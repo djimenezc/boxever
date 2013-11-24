@@ -1,11 +1,20 @@
 package util;
 
+/**
+ * Utility class to work with UUID's
+ * 
+ * @author david
+ * 
+ */
 public class UUIDUtil {
-	
-	public static java.util.UUID getTimeUUID() {
-		return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
-	}
-	
+
+	/**
+	 * Method to reduce the length of a String to n characters
+	 * 
+	 * @param s
+	 * @param n
+	 * @return
+	 */
 	public static String cut(final String s, int n) {
 		final byte[] utf8 = s.getBytes();
 		if (utf8.length < n) {
@@ -32,5 +41,14 @@ public class UUIDUtil {
 			}
 		}
 		return s.substring(0, n16);
+	}
+
+	/**
+	 * Method to get a random UUID time based
+	 * 
+	 * @return
+	 */
+	public static java.util.UUID getTimeUUID() {
+		return java.util.UUID.fromString(new com.eaio.uuid.UUID().toString());
 	}
 }

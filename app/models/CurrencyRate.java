@@ -1,5 +1,11 @@
 package models;
 
+/**
+ * Bean that represent the exchange rate for a concrete currency
+ * 
+ * @author david
+ * 
+ */
 public class CurrencyRate {
 
 	private CurrencyType currencyType;
@@ -40,7 +46,8 @@ public class CurrencyRate {
 			if (other.rate != null) {
 				return false;
 			}
-		} else if (!rate.equals(other.rate)) {
+		}
+		else if (!rate.equals(other.rate)) {
 			return false;
 		}
 		return true;

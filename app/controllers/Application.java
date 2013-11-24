@@ -31,31 +31,25 @@ import com.netflix.astyanax.connectionpool.exceptions.ConnectionException;
 
 import dal.CassandraAstyanaxConnection;
 
+/**
+ * Class where are described the API that the fronted can utilize. The publics methods represent entry points to the
+ * back-end functionality
+ * 
+ * @author david
+ * 
+ */
 public class Application extends Controller {
 
 	private static final CurrencyType DEFAULT_CURRENCY_TYPE = CurrencyType.USD;
 	private static final String API_PATH = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
 	private static final Logger LOGGER = Logger.getLogger(Application.class);
 
-	private static Promise<Map<Date, ValuePair>> checkAndGetCurrencyRateMapAsynchronously(final String currencyId) {
-
-		return Akka.future(new Callable<Map<Date, ValuePair>>() {
-			@Override
-			public Map<Date, ValuePair> call() {
-				Map<Date, ValuePair> ratesByCurrency = null;
-
-				try {
-					final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
-					ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(currencyType);
-
-				} catch (final ConnectionException e) {
-					LOGGER.error("Error reading rates by currency " + currencyId);
-				}
-				return ratesByCurrency;
-			}
-		});
-	}
-
+	/**
+	 * Method that allow to clean up the database from the front-end, truncating the tables
+	 * 
+	 * @return Message indicating if the action was performed properly
+	 * 
+	 */
 	public static Result cleanDatabase() {
 
 		final Promise<Boolean> promiseOfLoadTable = cleanDatabaseAsynchronously();
@@ -78,6 +72,11 @@ public class Application extends Controller {
 		}));
 	}
 
+	/**
+	 * Asynchronously call to clean up the database and remove the data
+	 * 
+	 * @return
+	 */
 	private static Promise<Boolean> cleanDatabaseAsynchronously() {
 
 		return Akka.future(new Callable<Boolean>() {
@@ -89,6 +88,11 @@ public class Application extends Controller {
 		});
 	}
 
+	/**
+	 * Method to build the list of currencies availables asynchronously
+	 * 
+	 * @return
+	 */
 	private static Promise<JsonNode> computeCurrencyListAsynchronously() {
 
 		final Promise<JsonNode> result = Akka.future(new Callable<JsonNode>() {
@@ -104,7 +108,14 @@ public class Application extends Controller {
 		return result;
 	}
 
+	/**
+	 * Method that allow to get the list of currencies available to display its rate
+	 * 
+	 * @return
+	 */
 	public static Result currencyList() {
+
+		LOGGER.info("Building currency List ");
 
 		final Promise<JsonNode> promiseOfPIValue = computeCurrencyListAsynchronously();
 
@@ -116,11 +127,17 @@ public class Application extends Controller {
 		}));
 	}
 
+	/**
+	 * Method that retrieve a list of rates of an specific currency
+	 * 
+	 * @param currencyId
+	 * @return
+	 */
 	public static Result getCurrencyRateData(final String currencyId) {
 
 		LOGGER.info("getCurrencyRateData " + currencyId);
 
-		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = checkAndGetCurrencyRateMapAsynchronously(currencyId);
+		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = getCurrencyRateMapAsynchronously(currencyId);
 
 		return async(promiseOfLoadTable.map(new Function<Map<Date, ValuePair>, Result>() {
 			@Override
@@ -150,9 +167,40 @@ public class Application extends Controller {
 		}));
 	}
 
+	/**
+	 * Method that read the exchange rate of a concrete currency from asynchronously
+	 * 
+	 * @param currencyId
+	 * @return
+	 */
+	private static Promise<Map<Date, ValuePair>> getCurrencyRateMapAsynchronously(final String currencyId) {
+
+		return Akka.future(new Callable<Map<Date, ValuePair>>() {
+			@Override
+			public Map<Date, ValuePair> call() {
+				Map<Date, ValuePair> ratesByCurrency = null;
+
+				try {
+					final CurrencyType currencyType = CurrencyType.valueOf(currencyId);
+					ratesByCurrency = CassandraAstyanaxConnection.getInstance().readByCurrency(currencyType);
+
+				} catch (final ConnectionException e) {
+					LOGGER.error("Error reading rates by currency " + currencyId);
+				}
+				return ratesByCurrency;
+			}
+		});
+	}
+
+	/**
+	 * Return the index page checking if the currency table is not empty. If the currency table is empty the data is
+	 * populate from the remote API
+	 * 
+	 * @return
+	 */
 	public static Result index() {
 
-		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = checkAndGetCurrencyRateMapAsynchronously(DEFAULT_CURRENCY_TYPE
+		final Promise<Map<Date, ValuePair>> promiseOfLoadTable = getCurrencyRateMapAsynchronously(DEFAULT_CURRENCY_TYPE
 				.name());
 
 		return async(promiseOfLoadTable.map(new Function<Map<Date, ValuePair>, Result>() {
@@ -169,6 +217,16 @@ public class Application extends Controller {
 		}));
 	}
 
+	/**
+	 * Process the response from the remote API and storing the exchange information in the database
+	 * 
+	 * @param xmlString
+	 * @return
+	 * @throws JDOMException
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws ConnectionException
+	 */
 	private static JsonNode processXmlResponse(final String xmlString) throws JDOMException, IOException,
 			ParseException, ConnectionException {
 
@@ -184,6 +242,11 @@ public class Application extends Controller {
 		return node;
 	}
 
+	/**
+	 * Method to clean the database and get fresh info from the remote API
+	 * 
+	 * @return
+	 */
 	public static Result refreshFromRemoteAPI() {
 
 		LOGGER.info("Refresh exchange rates from the remote API");
@@ -202,6 +265,10 @@ public class Application extends Controller {
 			public Result apply(final String xmlString) throws Throwable {
 
 				final JsonNode node = processXmlResponse(xmlString);
+
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("refreshFromRemoteAPI result: " + node.toString());
+				}
 
 				return ok(node);
 			}
