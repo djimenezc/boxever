@@ -74,8 +74,8 @@ currencyDirectives.directive('lineChart',['currencyService', '$rootScope', funct
 						"translate(0," + height + ")").call(xAxis);
 
 				svg.append("g").attr("class", "y axis").call(yAxis).append("text")
-						.attr("transform", "rotate(-90)").attr("y", 6).attr("dy",
-								".71em").style("text-anchor", "end").text(
+						.attr("y", 6).attr("dy",
+								"-1.5em").style("text-anchor", "end").text(
 								"Price");
 
 				svg.append("path").datum(data).attr("class", "line")
