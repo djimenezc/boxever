@@ -74,3 +74,19 @@ body {
 #currencySelect {
 	width: 9em;
 }
+
+
+.modal {
+    z-index:    1000;
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin:-100px 0 0 -150px;
+    height: 120px;
+    width:  300px;
+    padding-left: 20px;
+    background: rgba( 255, 255, 255, 1.5 ) 
+                url('http://i.stack.imgur.com/FhHRx.gif') 
+                50% 70% 
+                no-repeat;
+}

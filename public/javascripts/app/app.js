@@ -4,6 +4,9 @@ var myApp = angular.module('currencyApp', ['ngRoute','currencyControllers','curr
 
 var currencyServices = angular.module('currencyServices', []);
 
+/**
+ * Configure the routes indicating the views depends on the path and the controller that define the scope for
+ */
 myApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.when('/about', {
 		templateUrl : '/assets/partials/about.html',

@@ -4,6 +4,7 @@ currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currency
 	
 	$scope.loading = true;
 
+	//Retrieve the list of currencies and load in the scope
 	$http({method: 'GET', url: '/currency/list'}).
 	  success(function(data, status, headers, config) {
 		  $scope.currencies = data;
@@ -24,7 +25,6 @@ currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currency
 	  });
 	
 	$scope.cleanDatabase = function() {
-		
 		currencyService.cleanDatabase();
 	}
 	

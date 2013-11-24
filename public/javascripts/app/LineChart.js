@@ -1,9 +1,0 @@
-/**
- * 
- */
-
-LineChart = function() {
-
-	
-
-}();

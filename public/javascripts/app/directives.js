@@ -2,6 +2,9 @@
 
 var currencyDirectives = angular.module('currencyDirectives', []);
 
+/** Directive to include a line chart base on exchange rate
+ * 
+ */
 currencyDirectives.directive('lineChart',['currencyService', '$rootScope', function (currencyService, $rootScope) {
    
 	return function (scope, elem, attrs) {
@@ -9,6 +12,7 @@ currencyDirectives.directive('lineChart',['currencyService', '$rootScope', funct
 		console.log('LineChart init');
 		var margin, width, height, currencyRates, x, y, xAxis, yAxis, svg, line, dataStore;
 		
+		//Listen for the event updateChart and execute the updateChart function on demand
 		scope.$on('updateChart', function(e, data) {
 		    
 			console.log('Updating the chart');
@@ -16,6 +20,7 @@ currencyDirectives.directive('lineChart',['currencyService', '$rootScope', funct
 		    updateChart(data);
 		  });
 
+		//Rebuild the chart container according to the window width.
 		var resize = function resize() {
 
 			$('#lineChart').empty();
@@ -49,6 +54,7 @@ currencyDirectives.directive('lineChart',['currencyService', '$rootScope', funct
 					"translate(" + margin.left + "," + margin.top + ")");
 		};
 
+		//Method to update the chart base on an array of dates and rates
 		var updateChart = function(data) {
 
 			resize();
@@ -77,17 +83,15 @@ currencyDirectives.directive('lineChart',['currencyService', '$rootScope', funct
 			}
 			
 		};
-
-		var fetchData = function() {
-
-			var ratesData = currencyService.getCurrencyDataSelected();
-			
-		};
-
+		
+		//Build the chart
 		resize();
 
+		//When the browser is resize the chart is update to adapt the size to the new window size. 
+		//Make the chart responsive
 		d3.select(window).on('resize', updateChart);
 
-		fetchData();
+		//Get the data from the backend
+		var ratesData = currencyService.getCurrencyDataSelected();
     };
 }]);

@@ -10,6 +10,7 @@ currencyServices
 	}
 	
 	return {
+		//Get the exchange rates for 
 		getCurrencyDataSelected : function(currencyId) {
     			console.log('getRateData');
     			
