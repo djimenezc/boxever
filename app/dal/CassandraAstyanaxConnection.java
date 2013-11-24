@@ -192,6 +192,22 @@ public class CassandraAstyanaxConnection {
 		return processCurrencyRateFromDatabase(rows);
 	}
 
+	public Boolean truncateCurrencyTable() {
+
+		final ConnectKeyspaceConfig parameterObject = new ConnectKeyspaceConfig(CURRENCIES_KEYSPACE);
+		final Keyspace keyspace = CassandraAstyanaxConnection.connectKeyspace(parameterObject);
+
+		boolean result = false;
+		try {
+			keyspace.truncateColumnFamily(DAILY_CURRENCIES_FC);
+			result = true;
+		} catch (final ConnectionException e) {
+			LOGGER.error("Error truncating " + DAILY_CURRENCIES_FC + " table", e);
+		}
+
+		return result;
+	}
+
 	public Boolean writeDailyCurrencies(final ColumnFamily<String, String> columnFamily, final Keyspace keyspace,
 			final Map<String, DailyRate> dailyRateMap) throws ConnectionException {
 

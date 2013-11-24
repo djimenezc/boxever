@@ -2,6 +2,8 @@
 
 currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currencyService) {
 	
+	$scope.loading = true;
+
 	$http({method: 'GET', url: '/currency/list'}).
 	  success(function(data, status, headers, config) {
 		  $scope.currencies = data;
@@ -12,19 +14,21 @@ currencyControllers.controller('CurrencyCtrl', function ($scope, $http, currency
 
 		console.log('refreshAll');
 		
+		$scope.loading = true;
 		currencyService.refreshAllExchange();
 	};
-	
-	$scope.loading = true;
 	
 	$scope.$on('loading', function(e, value) {
 	    
 		$scope.loading = value;
 	  });
 	
-	$scope.updateRateData = function() {
+	$scope.cleanDatabase = function() {
 		
-		$scope.loading = true;
+		currencyService.cleanDatabase();
+	}
+	
+	$scope.updateRateData = function() {
 		
 		var currencyId = $scope.selectedCurrency.value;
 		console.log('getRateData ' + currencyId);

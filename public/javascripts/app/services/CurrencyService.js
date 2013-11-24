@@ -15,6 +15,8 @@ currencyServices
     			
     			var currencyId = currencyId ? currencyId : defaultCurrency;
     			
+    			$rootScope.$broadcast("loading", true);
+    			
     			$http({method: 'GET', url: '/currency/get/'+currencyId}).
     			success(function(data, status, headers, config) {
 
@@ -27,18 +29,33 @@ currencyServices
     					});
     					
     					$rootScope.$broadcast("updateChart", data);
+    					$rootScope.$broadcast("loading", false);
     				}
     			});
     		},
     		
     		refreshAllExchange : function() {
+    			
+    			$rootScope.$broadcast("loading", true);
+    			
     			$http({method: 'GET', url: '/currency/refreshAll'}).
     			  success(function(data, status, headers, config) {
 
     				  console.log('Result refresh all call: ' + data.name);
+    				  $rootScope.$broadcast("loading", false);
     			  });
-    		}
+    		},
     		
-    };
-    
+    		cleanDatabase: function() {
+    			
+    			$rootScope.$broadcast("loading", true);
+    			
+    			$http({method: 'GET', url: '/currency/cleanDatabase'}).
+    			success(function(data, status, headers, config) {
+    				
+    				console.log('Database clean status: ' + data);
+    				$rootScope.$broadcast("loading", false);
+    			});
+    		}
+	}
   }]);

@@ -56,6 +56,39 @@ public class Application extends Controller {
 		});
 	}
 
+	public static Result cleanDatabase() {
+
+		final Promise<Boolean> promiseOfLoadTable = cleanDatabaseAsynchronously();
+
+		return async(promiseOfLoadTable.map(new Function<Boolean, Result>() {
+			@Override
+			public Result apply(final Boolean truncateStatus) throws Throwable {
+
+				Result result;
+
+				if (truncateStatus) {
+					LOGGER.info("Table truncated successfully");
+					result = ok("Table truncated successfully");
+				}
+				else {
+					result = ok("Problem truncating table");
+				}
+				return result;
+			}
+		}));
+	}
+
+	private static Promise<Boolean> cleanDatabaseAsynchronously() {
+
+		return Akka.future(new Callable<Boolean>() {
+			@Override
+			public Boolean call() {
+
+				return CassandraAstyanaxConnection.getInstance().truncateCurrencyTable();
+			}
+		});
+	}
+
 	private static Promise<JsonNode> computeCurrencyListAsynchronously() {
 
 		final Promise<JsonNode> result = Akka.future(new Callable<JsonNode>() {
@@ -153,7 +186,7 @@ public class Application extends Controller {
 
 	public static Result refreshFromRemoteAPI() {
 
-		LOGGER.info("Refresh all exchange rates");
+		LOGGER.info("Refresh exchange rates from the remote API");
 
 		final Promise<String> promiseXmlProcessed = WS.url(API_PATH).get().map(new Function<WS.Response, String>() {
 
